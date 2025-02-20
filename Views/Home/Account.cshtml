@@ -1,0 +1,165 @@
+@model Final.Models.UserViewModel
+@{
+    Layout = "_Layout";
+}
+@section Css{
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+}
+
+@if (User.IsInRole("Admin") || User.IsInRole("Root"))
+{
+    <section id="UserManagment">
+    <div class="card shadow mt-4">
+        <div class="card-header bg-primary text-white">
+            <h3 class="card-title mb-0"><i class="fas fa-tv"></i> User Managment</h3>
+        </div>
+        <div class="card-body">
+            <!-- Invoke the User Management ViewComponent -->
+            @await Component.InvokeAsync("UserManagement")
+        </div>
+    </div>
+    </section>
+}
+
+<div class="container my-5 animate__animated animate__fadeIn">
+    <!-- User Account Information -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">Welcome, @Model.FirstName @Model.LastName</h2>
+                </div>
+                <div class="card-body">
+                    <p class="lead"><strong>Username:</strong> @Model.UserName</p>
+                    <p class="lead"><strong>Name:</strong> @Model.FirstName @Model.LastName</p>
+                    <a class="btn btn-danger" href="@Url.Action("Logout", "Home")">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Companies, Tools, and Topics -->
+    <div class="row">
+        @foreach (var company in Model.Companies)
+        {
+            <div class="col-lg-6 col-md-12 mb-4">
+                <div class="card h-100 shadow animate__animated animate__zoomIn">
+                    <div class="card-header bg-info text-white">
+                        <h3 class="card-title">@company.Name</h3>
+                        <small>Base Topic: @company.BaseTopic</small>
+                    </div>
+                    <div class="card-body">
+                        @if (company.Tools != null && company.Tools.Any())
+                        {
+                            foreach (var tool in company.Tools)
+                            {
+                                <div class="mb-3">
+                                    <h5 class="text-secondary">@tool.Name</h5>
+                                    <p>@tool.Description</p>
+                                    @if (tool.Topics != null && tool.Topics.Any())
+                                    {
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered table-sm">
+                                                <thead class="thead-light">
+                                                    <tr>
+                                                        <th>Topic Template</th>
+                                                        <th>Base Topic</th>
+                                                        <th>How Many</th>
+                                                        <th>Data Type</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var topic in tool.Topics)
+                                                    {
+                                                        <tr>
+                                                            <td>@topic.TopicTemplate</td>
+                                                            <td>@topic.BaseTopic</td>
+                                                            <td>@topic.HowMany</td>
+                                                            <td>@topic.DataType</td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">No topics available.</p>
+                                    }
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <p class="text-muted">No tools available for this company.</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+
+@section Scripts{
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#blogsTable').DataTable({
+            responsive: true,
+            language: {
+                search: "Search:",
+                lengthMenu: "Show _MENU_ users",
+                info: "Showing _START_ to _END_ of _TOTAL_ users",
+                paginate: {
+                    next: "Next",
+                    previous: "Previous"
+                }
+            },
+            columnDefs: [
+                { orderable: false, targets: -1 } // Disable sorting on the last column (Actions)
+            ],
+            // The "dom" option controls the layout of table controls:
+            //   l = length changing input control
+            //   f = filtering input
+            //   t = the table
+            //   i = table information summary
+            //   p = pagination control
+            //   r = processing display element
+            // Below, we place length menu and search box in one row,
+            // and info/pagination in another row for a clean, Bootstrap-like layout.
+            dom: '<"row"' +
+                    '<"col-sm-6"l>' + // length menu
+                    '<"col-sm-6"f>' + // search
+                 '>' +
+                 '<"row"' +
+                    '<"col-sm-12"tr>' + // table
+                 '>' +
+                 '<"row"' +
+                    '<"col-sm-5"i>' + // info
+                    '<"col-sm-7"p>' + // pagination
+                 '>'
+        });
+    });
+</script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <script>
+    setTimeout(function () {
+        let alerts = document.querySelectorAll(".alert");
+        alerts.forEach(alert => {
+            let bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+    }, 5000); // Auto close after 5 seconds
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+
+}

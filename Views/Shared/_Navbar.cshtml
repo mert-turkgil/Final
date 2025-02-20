@@ -1,0 +1,113 @@
+@using Final.Services
+@inject  LanguageService _localization
+
+<div class="container-xxl ">
+    <!-- #region logo-->
+    <div class="justify-content-start">
+      <a href="/" class="navbar-nav navbar-brand text-dark text-decoration-none">
+        <img src="~/img/Logo_of_Twitter.svg.png" alt="Logo" width="50" height="50">
+        <h1 class="fs-4 m-1 d-none d-lg-block">
+            Logo
+            <br>
+            @{
+                // Serialize the localized "Welcome" text into a JSON array.
+                var welcomeTextJson = Newtonsoft.Json.JsonConvert.SerializeObject(new string[] { _localization.GetKey("Welcome").Value });
+                var login = _localization.GetKey("Login").Value;
+                var logout = _localization.GetKey("Logout").Value;
+                var rememberMe =_localization.GetKey("RememberMe").Value;
+                var password =_localization.GetKey("Password").Value;
+            }
+            <span class="typewrite position-absolute text-success fs-6"
+            data-period="1000" 
+            data-type='@welcomeTextJson'>
+      </span>
+        </h1>
+      </a>
+    </div>
+      <!-- #endregion -->
+      <!-- #region orta-->
+    <div class="collapse navbar-collapse d-none d-lg-block justify-content-center" id="navbarNav">
+        <ul class="navbar-nav">
+            @if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                <li class="nav-item">
+                    <form asp-controller="Home" asp-action="Logout" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="nav-link btn btn-outline-danger btn-lg fw-semibold ms-3">
+                            <i class="fas fa-sign-out-alt"></i> @logout
+                        </button>
+                    </form>
+                </li>
+            }
+            else
+            {
+                <li class="nav-item d-none">
+                    <a class="nav-link fw-semibold btn btn-outline-success btn-lg fw-semibold ms-3" asp-controller="Home" asp-action="Index">
+                        <i class="fas fa-sign-in-alt"></i> @login
+                    </a>
+                </li>
+            }
+        </ul>
+    </div>
+    <!-- #endregion -->
+    <!-- #giriş çıkış -->
+    <div class="d-none d-lg-block">
+      @await Component.InvokeAsync("LanguageSelector")
+    </div>
+     <!-- #endregion -->  
+     <!-- #region buton -->
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#offcanvasNavbar"
+          aria-controls="offcanvasNavbar"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+     <!-- #endregion -->  
+     <!-- #region OffCanvas-->
+     <div class="offcanvas offcanvas-end d-block d-lg-none" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+      <div class="offcanvas-header position-relative">
+        <span type="button" class="btn-close position-absolute p-2 border border-light rounded-circle" data-bs-dismiss="offcanvas" aria-label="Close"></span>
+        <a href="/" class="navbar-nav navbar-brand text-dark text-decoration-none d-block">
+        <img src="~/img/Logo_of_Twitter.svg.png" class="w-25 mx-5"> 
+        Logo
+        </a> 
+      </div>
+      <!-- Add Language Selector in Offcanvas -->
+      <div class="offcanvas-body ">
+          <ul class="nav nav-pills nav-justified flex-column flex-grow-1 pe-3">
+            @if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                var firstName = User.FindFirst("FirstName")?.Value;
+                var lastName = User.FindFirst("LastName")?.Value;
+                <li class="nav-item border-bottom border-top">
+                    <form asp-controller="Home" asp-action="Logout" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="nav-link btn btn-outline-danger btn-lg fw-semibold ms-3">
+                            <i class="fas fa-sign-out-alt"></i>@firstName@lastName <br/> @logout
+                        </button>
+                    </form>
+                </li>
+            }
+            else
+            {
+                <li class="nav-item border-bottom border-top">
+                    <a class="nav-link fw-semibold btn btn-outline-success btn-lg fw-semibold ms-3" asp-controller="Home" asp-action="Index">
+                        <i class="fas fa-sign-in-alt"></i> @login
+                    </a>
+                </li>
+            }
+          </ul>
+          <!-- Add Language Selector Below Menu -->
+          <div class="mt-4 mx-auto d-flex justify-content-center">
+              @await Component.InvokeAsync("LanguageSelector")
+          </div>
+      </div>
+
+    </div>
+     <!-- #endregion -->
+</div>
