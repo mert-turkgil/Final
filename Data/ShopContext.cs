@@ -23,6 +23,7 @@ namespace Final.Data
         public required DbSet<Company> Companies { get; set; }
         public required DbSet<MqttTopic> MqttTopics { get; set; }
         public required DbSet<MqttTool> MqttTools { get; set; }
+        public required DbSet<CompanyRole> CompanyRoles { get; set; }
         //public required DbSet<TopicDataType> TopicDataTypes { get; set; } Gereksiz araştır
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -31,7 +32,7 @@ namespace Final.Data
             modelBuilder.ApplyConfiguration(new MqttTopicConfiguration());
 
             // If you have seed data, you can do it here or in the configurations.
-
+            modelBuilder.Seed();
             base.OnModelCreating(modelBuilder);
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

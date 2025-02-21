@@ -1,0 +1,26 @@
+@model IEnumerable<string>
+
+<section id="MqttLogs">
+    <div class="card shadow mt-4">
+        <div class="card-header bg-dark text-white">
+            <h3 class="card-title mb-0">
+                <i class="fas fa-terminal"></i> MQTT Logs
+            </h3>
+        </div>
+        <div class="card-body" style="background-color: #2b2b2b; color: #eee; font-family: monospace;">
+            <div id="mqttLogsContainer" style="max-height: 300px; overflow-y: auto;">
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var log in Model)
+                    {
+                        <div>@log</div>
+                    }
+                }
+                else
+                {
+                    <div>No logs available.</div>
+                }
+            </div>
+        </div>
+    </div>
+</section>

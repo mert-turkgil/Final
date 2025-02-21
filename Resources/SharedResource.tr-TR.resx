@@ -124,4 +124,10 @@
 <data name="EmailForInfo" xml:space="preserve">
   <value>Bilgi E-postası</value>
 </data>
+<data name="AlreadyLogged" xml:space="preserve">
+  <value>Zaten giriş yapmış durumdasınız.</value>
+</data>
+<data name="Account" xml:space="preserve">
+  <value>Hesabınıza gidin</value>
+</data>
 </root>

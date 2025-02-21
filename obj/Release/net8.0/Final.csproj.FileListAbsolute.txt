@@ -166,3 +166,4 @@ C:\Users\mertu\Desktop\Final\obj\Release\net8.0\refint\Final.dll
 C:\Users\mertu\Desktop\Final\obj\Release\net8.0\Final.pdb
 C:\Users\mertu\Desktop\Final\obj\Release\net8.0\Final.genruntimeconfig.cache
 C:\Users\mertu\Desktop\Final\obj\Release\net8.0\ref\Final.dll
+C:\Users\mertu\Desktop\Final\obj\Release\net8.0\Final.sourcelink.json

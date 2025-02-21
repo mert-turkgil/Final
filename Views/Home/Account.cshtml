@@ -3,14 +3,55 @@
     Layout = "_Layout";
 }
 @section Css{
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
-<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <!-- DataTables + Bootstrap 5 integration CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+    
+    <!-- Font Awesome (optional) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+    
 }
 
 @if (User.IsInRole("Admin") || User.IsInRole("Root"))
 {
+    <div class="companies">
+        @foreach (var company in Model.Companies)
+        {
+            <div class="company-section my-4">
+                <h3>@company.Name</h3>
+                <p>Base Topic: @company.BaseTopic</p>
+                @await Component.InvokeAsync("MqttLogs", new { companyId = company.Id })
+            </div>
+        }
+    </div>
+
+
+    <section id="CompanyManagement">
+        <div class="card shadow mt-4">
+            <div class="card-header bg-primary text-white">
+                <h3 class="card-title mb-0"><i class="fas fa-tv"></i> Company Management</h3>
+            </div>
+            <div class="card-body">
+                <!-- Invoke the Company List ViewComponent -->
+                @await Component.InvokeAsync("CompanyList")
+            </div>
+        </div>
+    </section>
+
+    <section id="RoleManagment">
+    <div class="card shadow mt-4">
+        <div class="card-header bg-primary text-white">
+            <h3 class="card-title mb-0"><i class="fas fa-tv"></i> Role Managment</h3>
+        </div>
+        <div class="card-body">
+            <!-- Invoke the User Management ViewComponent -->
+            @await Component.InvokeAsync("RoleManagement")
+        </div>
+    </div>
+    </section>
+
     <section id="UserManagment">
     <div class="card shadow mt-4">
         <div class="card-header bg-primary text-white">
@@ -103,63 +144,118 @@
 </div>
 
 
-@section Scripts{
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
-<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+@section Scripts {
+    <!-- jQuery (required by DataTables) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- DataTables + Bootstrap 5 integration JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <!-- DataTables Responsive extension -->
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
 <script>
-    $(document).ready(function () {
-        $('#blogsTable').DataTable({
-            responsive: true,
-            language: {
-                search: "Search:",
-                lengthMenu: "Show _MENU_ users",
-                info: "Showing _START_ to _END_ of _TOTAL_ users",
-                paginate: {
-                    next: "Next",
-                    previous: "Previous"
-                }
-            },
-            columnDefs: [
-                { orderable: false, targets: -1 } // Disable sorting on the last column (Actions)
-            ],
-            // The "dom" option controls the layout of table controls:
-            //   l = length changing input control
-            //   f = filtering input
-            //   t = the table
-            //   i = table information summary
-            //   p = pagination control
-            //   r = processing display element
-            // Below, we place length menu and search box in one row,
-            // and info/pagination in another row for a clean, Bootstrap-like layout.
-            dom: '<"row"' +
-                    '<"col-sm-6"l>' + // length menu
-                    '<"col-sm-6"f>' + // search
-                 '>' +
-                 '<"row"' +
-                    '<"col-sm-12"tr>' + // table
-                 '>' +
-                 '<"row"' +
-                    '<"col-sm-5"i>' + // info
-                    '<"col-sm-7"p>' + // pagination
-                 '>'
-        });
+  $(document).ready(function() {
+    // Users Table
+    $('#usersTable').DataTable({
+      responsive: {
+        details: {
+          type: 'column', // Could also be 'inline' or 'modal'
+          target: 'tr'
+        }
+      },
+      // Example config: 
+      // Show 10, 25, 50, or all entries
+      lengthMenu: [ [10, 25, 50, -1], [10, 25, 50, "All"] ],
+      // Turn on ordering, searching, etc. 
+      order: [],   // By default, no initial ordering
+      paging: true,
+      searching: true,
+      autoWidth: false,
+      columnDefs: [
+        { responsivePriority: 1, targets: 1 }, // Email
+        { responsivePriority: 2, targets: 2 }, // Actions
+        { responsivePriority: 3, targets: 0 }  // ID
+      ]
     });
+
+    // Roles Table
+    $('#rolesTable').DataTable({
+      responsive: {
+        details: {
+          type: 'column',
+          target: 'tr'
+        }
+      },
+      lengthMenu: [ [10, 25, 50, -1], [10, 25, 50, "All"] ],
+      order: [],
+      paging: true,
+      searching: true,
+      autoWidth: false,
+      columnDefs: [
+        { responsivePriority: 1, targets: 0 }, // Name
+        { responsivePriority: 2, targets: 2 }, // Action
+        { responsivePriority: 3, targets: 1 }  // ID
+      ]
+    });
+  });
 </script>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
     <script>
-    setTimeout(function () {
-        let alerts = document.querySelectorAll(".alert");
-        alerts.forEach(alert => {
-            let bsAlert = new bootstrap.Alert(alert);
-            bsAlert.close();
+        $(document).ready(function () {
+            $('#companyTable').DataTable({
+                responsive: true,
+                // You can add additional DataTables options here
+            });
         });
-    }, 5000); // Auto close after 5 seconds
     </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+        <!-- Ensure you have the SignalR client library referenced. Adjust the path as needed -->
+    <script src="~/lib/signalr/signalr.js"></script>
+    <script>
+        (function () {
+            // Retrieve the company ID from ViewData passed into the view component.
+            const companyId = '@ViewData["CompanyId"]';
+            // Optionally, map the companyId to a group name. For example, if your companies use their BaseTopic as group name.
+            // For this example, we'll use the companyId as a string.
+            const groupName = companyId; 
 
+            // Create the SignalR connection to your NotificationHub.
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("/notificationHub")
+                .build();
+
+            // Listen for subscription log messages.
+            connection.on("ReceiveSubscriptionLog", function (log) {
+                appendLog(log);
+            });
+
+            // Listen for MQTT message events.
+            connection.on("ReceiveMqttMessage", function (topic, payload) {
+                const log = `[${new Date().toLocaleTimeString()}] [Message] Topic: ${topic}, Payload: ${payload}`;
+                appendLog(log);
+            });
+
+            // Start the connection.
+            connection.start().then(function () {
+                console.log("SignalR connected for MQTT Logs.");
+                // Optionally, join the group for the current company.
+                // Uncomment and adjust if your hub uses groups:
+                // connection.invoke("JoinGroup", groupName);
+            }).catch(function (err) {
+                console.error(err.toString());
+            });
+
+            // Helper function to append a new log entry.
+            function appendLog(message) {
+                const container = document.getElementById("mqttLogsContainer");
+                if (container) {
+                    const div = document.createElement("div");
+                    div.textContent = message;
+                    container.appendChild(div);
+                    // Optionally, scroll to the bottom.
+                    container.scrollTop = container.scrollHeight;
+                }
+            }
+        })();
+    </script>
 }

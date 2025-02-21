@@ -124,4 +124,10 @@
 <data name="EmailForInfo" xml:space="preserve">
   <value>Email</value>
 </data>
+<data name="AlreadyLogged" xml:space="preserve">
+  <value>You are already logged in.</value>
+</data>
+<data name="Account" xml:space="preserve">
+  <value>Go to your account</value>
+</data>
 </root>

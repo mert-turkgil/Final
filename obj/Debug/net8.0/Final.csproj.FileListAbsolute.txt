@@ -166,3 +166,4 @@ C:\Users\mertu\Desktop\Final\obj\Debug\net8.0\ref\Final.dll
 C:\Users\mertu\Desktop\Final\bin\Debug\net8.0\MQTTnet.dll
 C:\Users\mertu\Desktop\Final\obj\Debug\net8.0\Final.Resources.SharedResource.en-US.resources
 C:\Users\mertu\Desktop\Final\obj\Debug\net8.0\Final.Resources.SharedResource.tr-TR.resources
+C:\Users\mertu\Desktop\Final\obj\Debug\net8.0\Final.sourcelink.json

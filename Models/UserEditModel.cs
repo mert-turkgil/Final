@@ -24,10 +24,11 @@ namespace Final.Models
         public DateTime CreatedDate { get; set; }
         [Required]
         public string UserName { get; set; }
-        [Required]
         public string Password { get; set; }
         [Required]
         public bool EmailConfirmed { get; set; }
+        [Required]
+        public bool Lockout  { get; set; }
         public List<string> SelectedRoles { get; set; } 
         public List<string> AllRoles { get; set; }
         

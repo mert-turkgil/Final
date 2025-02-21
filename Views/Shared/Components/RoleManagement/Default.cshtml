@@ -1,0 +1,43 @@
+@model Final.Models.RoleManagementViewModel
+
+<div class="container my-4">
+    <div class="nav mb-3">
+        <a class="btn btn-outline-success nav-item m-auto w-100" 
+           asp-controller="Home" 
+           asp-action="RoleCreate">
+            Create Role
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col table-responsive">
+            <table id="rolesTable" class="table table-striped dt-responsive nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th data-priority="1">Name</th>
+                        <th data-priority="3">ID</th>
+                        <th data-priority="1">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var role in Model.Roles)
+                    {
+                        <tr>
+                            <td>@role.Name</td>
+                            <td>@role.Id</td>
+                            <td>
+                            <form asp-controller="Home" asp-action="RoleDelete" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@role.Id" />
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+
+                            <a asp-controller="Home" asp-action="RoleEdit" asp-route-id="@role.Id" class="btn btn-warning btn-sm">Edit</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

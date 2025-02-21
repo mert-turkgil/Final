@@ -44,6 +44,46 @@ namespace Final.Data.Migrations.Shop
                     b.HasKey("Id");
 
                     b.ToTable("Companies", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
+                            BaseTopic = "ciceklisogukhavadeposu",
+                            Name = "Ciceklisogukhavadeposu"
+                        });
+                });
+
+            modelBuilder.Entity("Final.Entity.CompanyRole", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("RoleId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("CompanyRoles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            RoleId = "role-ciceklisogukhavadeposu"
+                        });
                 });
 
             modelBuilder.Entity("Final.Entity.MqttTool", b =>
@@ -74,6 +114,22 @@ namespace Final.Data.Migrations.Shop
                     b.HasIndex("CompanyId");
 
                     b.ToTable("MqttTools", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("22222222-2222-2222-2222-222222222222"),
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            Description = "Main control room for the company",
+                            Name = "Control Room"
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-3333-3333-3333-333333333333"),
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            Description = "Compressor tool",
+                            Name = "Compressor"
+                        });
                 });
 
             modelBuilder.Entity("Final.Entity.MqttTopic", b =>
@@ -109,6 +165,214 @@ namespace Final.Data.Migrations.Shop
                     b.HasIndex("MqttToolId");
 
                     b.ToTable("MqttTopics", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("44444444-4444-4444-4444-444444444444"),
+                            BaseTopic = "ciceklisogukhavadeposu",
+                            Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                            DataType = 8,
+                            HowMany = 1,
+                            MqttToolId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            TopicTemplate = "ciceklisogukhavadeposu/control_room/room{room}/status"
+                        },
+                        new
+                        {
+                            Id = new Guid("66666666-6666-6666-6666-666666666666"),
+                            BaseTopic = "ciceklisogukhavadeposu",
+                            Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                            DataType = 3,
+                            HowMany = 1,
+                            MqttToolId = new Guid("33333333-3333-3333-3333-333333333333"),
+                            TopicTemplate = "ciceklisogukhavadeposu/control_room/compressor/status"
+                        },
+                        new
+                        {
+                            Id = new Guid("77777777-7777-7777-7777-777777777777"),
+                            BaseTopic = "ciceklisogukhavadeposu",
+                            Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                            DataType = 3,
+                            HowMany = 1,
+                            MqttToolId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            TopicTemplate = "pwr_rqst/room{room}/control_room/ciceklisogukhavadeposu"
+                        },
+                        new
+                        {
+                            Id = new Guid("88888888-8888-8888-8888-888888888888"),
+                            BaseTopic = "ciceklisogukhavadeposu",
+                            Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                            DataType = 8,
+                            HowMany = 1,
+                            MqttToolId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            TopicTemplate = "set_temp/room{room}/control_room/ciceklisogukhavadeposu"
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000001"),
+                            BaseTopic = "ciceklisogukhavadeposu",
+                            Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                            DataType = 8,
+                            HowMany = 1,
+                            MqttToolId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            TopicTemplate = "ciceklisogukhavadeposu/control_room/room1/temp"
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000002"),
+                            BaseTopic = "ciceklisogukhavadeposu",
+                            Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                            DataType = 8,
+                            HowMany = 1,
+                            MqttToolId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            TopicTemplate = "ciceklisogukhavadeposu/control_room/room2/temp"
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000003"),
+                            BaseTopic = "ciceklisogukhavadeposu",
+                            Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                            DataType = 8,
+                            HowMany = 1,
+                            MqttToolId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            TopicTemplate = "ciceklisogukhavadeposu/control_room/room3/temp"
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000004"),
+                            BaseTopic = "ciceklisogukhavadeposu",
+                            Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                            DataType = 8,
+                            HowMany = 1,
+                            MqttToolId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            TopicTemplate = "ciceklisogukhavadeposu/control_room/room4/temp"
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000005"),
+                            BaseTopic = "ciceklisogukhavadeposu",
+                            Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                            DataType = 8,
+                            HowMany = 1,
+                            MqttToolId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            TopicTemplate = "ciceklisogukhavadeposu/control_room/room5/temp"
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000006"),
+                            BaseTopic = "ciceklisogukhavadeposu",
+                            Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                            DataType = 8,
+                            HowMany = 1,
+                            MqttToolId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            TopicTemplate = "ciceklisogukhavadeposu/control_room/room6/temp"
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000007"),
+                            BaseTopic = "ciceklisogukhavadeposu",
+                            Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                            DataType = 8,
+                            HowMany = 1,
+                            MqttToolId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            TopicTemplate = "ciceklisogukhavadeposu/control_room/room7/temp"
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000008"),
+                            BaseTopic = "ciceklisogukhavadeposu",
+                            Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                            DataType = 8,
+                            HowMany = 1,
+                            MqttToolId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            TopicTemplate = "ciceklisogukhavadeposu/control_room/room8/temp"
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000009"),
+                            BaseTopic = "ciceklisogukhavadeposu",
+                            Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                            DataType = 8,
+                            HowMany = 1,
+                            MqttToolId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            TopicTemplate = "ciceklisogukhavadeposu/control_room/room9/temp"
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-00000000000a"),
+                            BaseTopic = "ciceklisogukhavadeposu",
+                            Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                            DataType = 8,
+                            HowMany = 1,
+                            MqttToolId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            TopicTemplate = "ciceklisogukhavadeposu/control_room/room10/temp"
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-00000000000b"),
+                            BaseTopic = "ciceklisogukhavadeposu",
+                            Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                            DataType = 8,
+                            HowMany = 1,
+                            MqttToolId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            TopicTemplate = "ciceklisogukhavadeposu/control_room/room11/temp"
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-00000000000c"),
+                            BaseTopic = "ciceklisogukhavadeposu",
+                            Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                            DataType = 8,
+                            HowMany = 1,
+                            MqttToolId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            TopicTemplate = "ciceklisogukhavadeposu/control_room/room12/temp"
+                        });
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NormalizedName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("IdentityRole");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "role-ciceklisogukhavadeposu",
+                            Name = "CiceklisogukhavadeposuRole",
+                            NormalizedName = "CICEKLISOGUKHAVADEPOSUROLE"
+                        });
+                });
+
+            modelBuilder.Entity("Final.Entity.CompanyRole", b =>
+                {
+                    b.HasOne("Final.Entity.Company", "Company")
+                        .WithMany("CompanyRoles")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+
+                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("Final.Entity.MqttTool", b =>
@@ -134,6 +398,8 @@ namespace Final.Data.Migrations.Shop
 
             modelBuilder.Entity("Final.Entity.Company", b =>
                 {
+                    b.Navigation("CompanyRoles");
+
                     b.Navigation("Tools");
                 });
 

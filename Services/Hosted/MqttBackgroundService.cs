@@ -55,8 +55,11 @@ namespace Final.Services.Hosted
                     {
                         foreach (var topic in tool.Topics)
                         {
+
                             string topicToSubscribe = topic.TopicTemplate;
                             _logger.LogInformation($"Subscribing to topic: {topicToSubscribe}");
+                            await _hubContext.Clients.Group(company.BaseTopic)
+                            .SendAsync("ReceiveSubscriptionLog", $"[>>{DateTime.Now:HH:mm:ss}] [Info] Company {company.Id}: Subscribing to topic: {topicToSubscribe}");
                             await _mqttService.SubscribeAsync(topicToSubscribe);
                         }
                     }
@@ -78,6 +81,8 @@ namespace Final.Services.Hosted
                 {
                     // Use the company's BaseTopic as the SignalR group name.
                     string groupName = company.BaseTopic;
+                    await _hubContext.Clients.Group(company.BaseTopic)
+                            .SendAsync("ReceiveSubscriptionLog", $"[{DateTime.Now:HH:mm:ss}] [Info] Company {company.Id}- ReceiveMqttMessage--->> {e.Topic} --> {e.Payload}");
                     await _hubContext.Clients.Group(groupName).SendAsync("ReceiveMqttMessage", e.Topic, e.Payload);
                 }
                 else

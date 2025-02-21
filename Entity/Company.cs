@@ -20,5 +20,7 @@ namespace Final.Entity
         
         // Navigation property for tools that belong to the company
         public virtual ICollection<MqttTool> Tools { get; set; } = new List<MqttTool>();
+        // Navigation property for roles bound to the company
+        public virtual ICollection<CompanyRole> CompanyRoles { get; set; } = new List<CompanyRole>();
     }
 }
