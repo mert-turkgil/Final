@@ -24,7 +24,9 @@ namespace Final.Entity
         [Required]
         public TopicDataType DataType { get; set; }
 
-
+        // Distinguish between subscription and sending topics.
+        [Required]
+        public TopicPurpose TopicPurpose { get; set; }
         // Optional relationship to a tool that owns this topic
         public Guid? MqttToolId { get; set; }
         public virtual MqttTool MqttTool { get; set; }

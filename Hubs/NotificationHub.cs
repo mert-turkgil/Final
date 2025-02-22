@@ -45,5 +45,10 @@ namespace Final.Hubs
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
             await Clients.Caller.SendAsync("ReceiveNotification", $"Left group: {groupName}");
         }
+
+        public async Task SendLog(string message)
+        {
+            await Clients.All.SendAsync("ReceiveSubscriptionLog", message);
+        }
     }
 }

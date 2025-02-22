@@ -16,20 +16,20 @@ namespace Final.Services.Hosted
     {
         private readonly IMqttService _mqttService;
         private readonly IServiceProvider _serviceProvider;
-        private readonly IHubContext<NotificationHub> _hubContext;
         private readonly ILogger<MqttBackgroundService> _logger;
+        private readonly IMqttLogService _mqttLogService;
         private CancellationTokenSource? _cts;
 
         public MqttBackgroundService(
             IMqttService mqttService,
             IServiceProvider serviceProvider,  // Used to create scopes
-            IHubContext<NotificationHub> hubContext,
-            ILogger<MqttBackgroundService> logger)
+            ILogger<MqttBackgroundService> logger,
+            IMqttLogService mqttLogService)
         {
             _mqttService = mqttService;
             _serviceProvider = serviceProvider;
-            _hubContext = hubContext;
             _logger = logger;
+            _mqttLogService = mqttLogService;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -53,13 +53,17 @@ namespace Final.Services.Hosted
 
                     foreach (var tool in company.Tools)
                     {
-                        foreach (var topic in tool.Topics)
+                        // Subscribe only to topics marked for Subscription
+                        foreach (var topic in tool.Topics.Where(t => t.TopicPurpose == TopicPurpose.Subscription))
                         {
-
                             string topicToSubscribe = topic.TopicTemplate;
-                            _logger.LogInformation($"Subscribing to topic: {topicToSubscribe}");
-                            await _hubContext.Clients.Group(company.BaseTopic)
-                            .SendAsync("ReceiveSubscriptionLog", $"[>>{DateTime.Now:HH:mm:ss}] [Info] Company {company.Id}: Subscribing to topic: {topicToSubscribe}");
+                            string logMessage = $"[>>{DateTime.Now:HH:mm:ss}] [Info] Company {company.Id}: Subscribing to topic: {topicToSubscribe}";
+                            
+                            // Log the subscription event in the logging service.
+                            _mqttLogService.AddLog(company.Id,company.Name,logMessage);
+                            _logger.LogInformation(logMessage);
+                            
+                            // Subscribe to the topic.
                             await _mqttService.SubscribeAsync(topicToSubscribe);
                         }
                     }
@@ -69,9 +73,9 @@ namespace Final.Services.Hosted
 
         private async void OnMqttMessageReceived(object? sender, MqttMessageReceivedEventArgs e)
         {
-            _logger.LogInformation($"MQTT message received: Topic: {e.Topic}, Payload: {e.Payload}");
-
-            // Create a new scope to resolve IShopUnitOfWork
+            _logger.LogInformation($"MQTT - Topic: {e.Topic}, Payload: {e.Payload}");
+            
+            // Create a new scope to resolve IShopUnitOfWork.
             using (var scope = _serviceProvider.CreateScope())
             {
                 var unitOfWork = scope.ServiceProvider.GetRequiredService<IShopUnitOfWork>();
@@ -79,11 +83,11 @@ namespace Final.Services.Hosted
                 var company = companies.FirstOrDefault(c => e.Topic.Contains(c.BaseTopic, StringComparison.OrdinalIgnoreCase));
                 if (company != null)
                 {
-                    // Use the company's BaseTopic as the SignalR group name.
-                    string groupName = company.BaseTopic;
-                    await _hubContext.Clients.Group(company.BaseTopic)
-                            .SendAsync("ReceiveSubscriptionLog", $"[{DateTime.Now:HH:mm:ss}] [Info] Company {company.Id}- ReceiveMqttMessage--->> {e.Topic} --> {e.Payload}");
-                    await _hubContext.Clients.Group(groupName).SendAsync("ReceiveMqttMessage", e.Topic, e.Payload);
+                    string message = $"[Info] - Received: {e.Topic} -> {e.Payload}";
+                    
+                    // Log the message.
+                    _mqttLogService.AddLog(company.Id,company.Name,message);
+                    _logger.LogInformation(message);
                 }
                 else
                 {

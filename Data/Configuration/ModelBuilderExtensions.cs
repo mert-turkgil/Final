@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Final.Entity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -26,7 +25,7 @@ namespace Final.Data.Configuration
                 {
                     Id = companyId,
                     Name = "Ciceklisogukhavadeposu",
-                    BaseTopic = "ciceklisogukhavadeposu"
+                    BaseTopic = "ciceklisogukhavadeposu",
                 }
             );
 
@@ -53,21 +52,8 @@ namespace Final.Data.Configuration
             // --------------------------------
             // 4) Seed Static Topics
             // --------------------------------
-            var topicRoomStatusId = Guid.Parse("44444444-4444-4444-4444-444444444444");
             var topicCompressorId = Guid.Parse("66666666-6666-6666-6666-666666666666");
-            var topicPwrRqstId = Guid.Parse("77777777-7777-7777-7777-777777777777");
-            var topicSetTempId = Guid.Parse("88888888-8888-8888-8888-888888888888");
-
             modelBuilder.Entity<MqttTopic>().HasData(
-                new MqttTopic
-                {
-                    Id = topicRoomStatusId,
-                    MqttToolId = controlRoomToolId,
-                    BaseTopic = "ciceklisogukhavadeposu",
-                    TopicTemplate = "ciceklisogukhavadeposu/control_room/room{room}/status",
-                    DataType = TopicDataType.Float,
-                    HowMany = 1
-                },
                 new MqttTopic
                 {
                     Id = topicCompressorId,
@@ -75,37 +61,82 @@ namespace Final.Data.Configuration
                     BaseTopic = "ciceklisogukhavadeposu",
                     TopicTemplate = "ciceklisogukhavadeposu/control_room/compressor/status",
                     DataType = TopicDataType.Int64,
-                    HowMany = 1
-                },
-                new MqttTopic
-                {
-                    Id = topicPwrRqstId,
-                    MqttToolId = controlRoomToolId,
-                    BaseTopic = "ciceklisogukhavadeposu",
-                    TopicTemplate = "pwr_rqst/room{room}/control_room/ciceklisogukhavadeposu",
-                    DataType = TopicDataType.Int64,
-                    HowMany = 1
-                },
-                new MqttTopic
-                {
-                    Id = topicSetTempId,
-                    MqttToolId = controlRoomToolId,
-                    BaseTopic = "ciceklisogukhavadeposu",
-                    TopicTemplate = "set_temp/room{room}/control_room/ciceklisogukhavadeposu",
-                    DataType = TopicDataType.Float,
+                    TopicPurpose = TopicPurpose.Subscription,
                     HowMany = 1
                 }
             );
 
             // --------------------------------
-            // 5) Seed 12 Room Temp Topics
+            // 5a) Seed Room Status Data (pwr_rqst topics) with unique prefix "AAAAAAA0"
+            // --------------------------------
+            var roomStatuData = new List<MqttTopic>();
+            for (int room = 1; room <= 12; room++)
+            {
+                string hexRoomString = room.ToString("X12"); // 12-digit hexadecimal string based on the room number
+                Guid topicId = Guid.Parse($"AAAAAAA0-AAAA-AAAA-AAAA-{hexRoomString}");
+                roomStatuData.Add(new MqttTopic
+                {
+                    Id = topicId,
+                    MqttToolId = controlRoomToolId,
+                    BaseTopic = "ciceklisogukhavadeposu",
+                    TopicTemplate = $"pwr_rqst/room{room}/control_room/ciceklisogukhavadeposu",
+                    DataType = TopicDataType.Int64,
+                    TopicPurpose = TopicPurpose.Sending,
+                    HowMany = 12
+                });
+            }
+            modelBuilder.Entity<MqttTopic>().HasData(roomStatuData.ToArray());
+
+            // --------------------------------
+            // 5b) Seed 12 set_temp/room Topics with unique prefix "BBBBBBBB"
+            // --------------------------------
+            var roomSendData = new List<MqttTopic>();
+            for (int room = 1; room <= 12; room++)
+            {
+                string hexRoomString = room.ToString("X12");
+                Guid topicId = Guid.Parse($"BBBBBBBB-BBBB-BBBB-BBBB-{hexRoomString}");
+                roomSendData.Add(new MqttTopic
+                {
+                    Id = topicId,
+                    MqttToolId = controlRoomToolId,
+                    BaseTopic = "ciceklisogukhavadeposu",
+                    TopicTemplate = $"set_temp/room{room}/control_room/ciceklisogukhavadeposu",
+                    DataType = TopicDataType.Float,
+                    TopicPurpose = TopicPurpose.Sending,
+                    HowMany = 12
+                });
+            }
+            modelBuilder.Entity<MqttTopic>().HasData(roomSendData.ToArray());
+
+            // --------------------------------
+            // 5c) Seed 12 Room Status Topics with unique prefix "CCCCCCCC"
+            // --------------------------------
+            var roomStatusTopics = new List<MqttTopic>();
+            for (int room = 1; room <= 12; room++)
+            {
+                string hexRoomString = room.ToString("X12");
+                Guid topicId = Guid.Parse($"CCCCCCCC-CCCC-CCCC-CCCC-{hexRoomString}");
+                roomStatusTopics.Add(new MqttTopic
+                {
+                    Id = topicId,
+                    MqttToolId = controlRoomToolId,
+                    BaseTopic = "ciceklisogukhavadeposu",
+                    TopicTemplate = $"ciceklisogukhavadeposu/control_room/room{room}/status",
+                    DataType = TopicDataType.Float,
+                    TopicPurpose = TopicPurpose.Subscription,
+                    HowMany = 12
+                });
+            }
+            modelBuilder.Entity<MqttTopic>().HasData(roomStatusTopics.ToArray());
+
+            // --------------------------------
+            // 5d) Seed 12 Room Temp Topics with prefix "00000000"
             // --------------------------------
             var roomTempTopics = new List<MqttTopic>();
             for (int room = 1; room <= 12; room++)
             {
-                string hexRoomString = room.ToString("X12"); // 12-digit hexadecimal
+                string hexRoomString = room.ToString("X12");
                 Guid topicId = Guid.Parse($"00000000-0000-0000-0000-{hexRoomString}");
-
                 roomTempTopics.Add(new MqttTopic
                 {
                     Id = topicId,
@@ -113,6 +144,7 @@ namespace Final.Data.Configuration
                     BaseTopic = "ciceklisogukhavadeposu",
                     TopicTemplate = $"ciceklisogukhavadeposu/control_room/room{room}/temp",
                     DataType = TopicDataType.Float,
+                    TopicPurpose = TopicPurpose.Subscription,
                     HowMany = 1
                 });
             }
@@ -121,10 +153,7 @@ namespace Final.Data.Configuration
             // --------------------------------
             // 6) Seed Role for the Company and Bind It
             // --------------------------------
-            // Define a stable role ID for the company's role.
             var roleId = "role-ciceklisogukhavadeposu";
-            
-            // Seed the IdentityRole. Note: IdentityRole's primary key is a string.
             modelBuilder.Entity<IdentityRole>().HasData(
                 new IdentityRole
                 {
@@ -133,8 +162,6 @@ namespace Final.Data.Configuration
                     NormalizedName = "CICEKLISOGUKHAVADEPOSUROLE"
                 }
             );
-
-            // Seed the join entity binding the company to this role.
             modelBuilder.Entity<CompanyRole>().HasData(
                 new CompanyRole
                 {

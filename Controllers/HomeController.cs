@@ -814,6 +814,106 @@ public class HomeController : Controller
     #endregion
 
     #region Company
+    // GET: Render the company creation view.
+    [HttpGet]
+    [Authorize(Roles = "Admin,Root")]
+    public IActionResult CreateCompany()
+    {
+        return View(new CompanyCreateViewModel());
+    }
+
+    // POST: Create a new company along with its MqttTool and MqttTopic.
+    [HttpPost]
+    [Authorize(Roles = "Admin,Root")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateCompany(CompanyCreateViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        // Create the Company entity.
+        var company = new Company
+        {
+            Id = Guid.NewGuid(),
+            Name = model.Name,
+            BaseTopic = model.BaseTopic
+        };
+
+        // Create Company-level Subscription Topics.
+        for (int i = 1; i <= model.HowMany; i++)
+        {
+            var subTopic = new MqttTopic
+            {
+                Id = Guid.NewGuid(),
+                BaseTopic = company.BaseTopic,
+                // Example pattern: {BaseTopic}/{TopicTemplate}/{TopicTemplate}/{TopicTemplate}{i}/{TopicTemplate}
+                TopicTemplate = $"{model.TopicTemplate}/{model.TopicTemplate}/{model.TopicTemplate}{i}/{model.TopicTemplate}",
+                HowMany = 1,
+                DataType = model.DataType,
+                MqttToolId = null  // Company-level topic.
+            };
+            await _unitOfWork.MqttTopicRepository.AddAsync(subTopic);
+        }
+
+        // Create Company-level Sending Topics (flexible, based on the sending topics submitted).
+        if(model.SendingTopics != null)
+        {
+            foreach (var sending in model.SendingTopics)
+            {
+                for (int i = 1; i <= sending.HowMany; i++)
+                {
+                    var sendTopic = new MqttTopic
+                    {
+                        Id = Guid.NewGuid(),
+                        BaseTopic = company.BaseTopic,
+                        // Here you can decide on a pattern. For example:
+                        TopicTemplate = $"{sending.TopicTemplate}{i}",
+                        HowMany = 1,
+                        DataType = sending.DataType,
+                        MqttToolId = null  // Company-level sending topic.
+                    };
+                    await _unitOfWork.MqttTopicRepository.AddAsync(sendTopic);
+                }
+            }
+        }
+
+        // Process Tools (similar to previous logic; create MqttTool entities with their own topics).
+        // For brevity, assuming one default tool is created as an example.
+        var mqttTool = new MqttTool
+        {
+            Id = Guid.NewGuid(),
+            Name = model.ToolName,
+            ToolBaseTopic = model.ToolBaseTopic,
+            Description = model.Description,
+            ImageUrl = model.ImageUrl,
+            CompanyId = company.Id,
+            Company = company
+        };
+
+        var toolTopic = new MqttTopic
+        {
+            Id = Guid.NewGuid(),
+            BaseTopic = company.BaseTopic,
+            TopicTemplate = $"{model.TopicTemplate}1/status", // Modify as needed.
+            HowMany = 1,
+            DataType = model.DataType,
+            MqttToolId = mqttTool.Id,
+            MqttTool = mqttTool
+        };
+        mqttTool.Topics.Add(toolTopic);
+        company.Tools.Add(mqttTool);
+
+        await _unitOfWork.CompanyRepository.AddAsync(company);
+        await _unitOfWork.MqttToolRepository.AddAsync(mqttTool);
+        await _unitOfWork.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = "Company created successfully!";
+        return RedirectToAction("Account");
+    }
+
+
 
     #endregion
 }

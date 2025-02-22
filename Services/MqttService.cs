@@ -59,6 +59,7 @@ namespace Final.Services
                 .WithTopic(topic)
                 .Build();
             
+            // The logging and SignalR messaging should be done in your background service.
             await _mqttClient.SubscribeAsync(topicFilter);
         }
 
@@ -69,8 +70,6 @@ namespace Final.Services
                 await ConnectAsync();
             }
 
-            // Convert the payload to string representation.
-            // This method can be extended to handle binary or other data types.
             string messagePayload = ConvertPayloadToString(payload);
 
             var message = new MqttApplicationMessageBuilder()
@@ -84,8 +83,6 @@ namespace Final.Services
 
         private string ConvertPayloadToString(object payload)
         {
-            // Generic conversion logic.
-            // Extend this method to handle additional types or custom serialization if needed.
             return payload switch
             {
                 null => string.Empty,
@@ -100,10 +97,7 @@ namespace Final.Services
 
         private void OnApplicationMessageReceived(MqttApplicationMessageReceivedEventArgs e)
         {
-            // Convert the payload from bytes to a string.
             string payload = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
-
-            // Raise the MessageReceived event.
             MessageReceived?.Invoke(this, new MqttMessageReceivedEventArgs(e.ApplicationMessage.Topic, payload));
         }
     }

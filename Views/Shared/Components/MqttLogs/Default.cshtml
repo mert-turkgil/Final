@@ -1,19 +1,20 @@
-@model IEnumerable<string>
+@model List<Final.Models.MqttLog>
 
 <section id="MqttLogs">
-    <div class="card shadow mt-4">
-        <div class="card-header bg-dark text-white">
-            <h3 class="card-title mb-0">
+    <div class="card shadow mt-4"> 
+        <div id="searchBar" class="card-header bg-dark text-white">
+            <h3 class="card-title mb-0 d-inline">
                 <i class="fas fa-terminal"></i> MQTT Logs
             </h3>
+            <input type="text" id="logSearch" placeholder="Search logs..." style="padding: 5px; float: right;" />
         </div>
-        <div class="card-body" style="background-color: #2b2b2b; color: #eee; font-family: monospace;">
-            <div id="mqttLogsContainer" style="max-height: 300px; overflow-y: auto;">
+        <div class="card-body log-container" style="background-color: #2b2b2b; color: #eee; font-family: monospace;">
+            <div id="logMessages" style="max-height: 300px; overflow-y: auto;">
                 @if (Model != null && Model.Any())
                 {
-                    foreach (var log in Model)
+                    @foreach (var log in Model)
                     {
-                        <div>@log</div>
+                        <div class="log-entry">@Html.Raw(log.Message)</div>
                     }
                 }
                 else
@@ -24,3 +25,72 @@
         </div>
     </div>
 </section>
+
+@section Scripts {
+    <script src="~/lib/signalr/signalr.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Establish a SignalR connection to the NotificationHub.
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("/notificationHub")
+                .build();
+
+            const logMessagesDiv = document.getElementById("logMessages");
+            const searchInput = document.getElementById("logSearch");
+
+            // Verify the elements exist.
+            if (!logMessagesDiv || !searchInput) {
+                console.error("Required DOM elements not found.");
+                return;
+            }
+
+            // Maintain a client-side array of logs.
+            let logs = [];
+            // Optionally, initialize this array with any server-rendered logs.
+
+            // Render logs filtered by the search query.
+            function renderLogs() {
+                const query = searchInput.value.toLowerCase();
+                // Check if the user is scrolled near the bottom.
+                const nearBottom = (logMessagesDiv.scrollHeight - logMessagesDiv.scrollTop) <= (logMessagesDiv.clientHeight + 50);
+                
+                // Clear existing messages.
+                logMessagesDiv.innerHTML = "";
+                logs.forEach(function(log) {
+                    if (!query || log.toLowerCase().includes(query)) {
+                        let logDiv = document.createElement("div");
+                        logDiv.className = "log-entry";
+                        logDiv.style.padding = "2px 5px";
+                        logDiv.style.borderBottom = "1px solid #eee";
+                        logDiv.innerHTML = log;
+                        logMessagesDiv.appendChild(logDiv);
+                    }
+                });
+                
+                // Auto-scroll if user is at (or near) the bottom.
+                if (nearBottom) {
+                    logMessagesDiv.scrollTop = logMessagesDiv.scrollHeight;
+                }
+            }
+
+            // Listen for new log messages from the hub.
+            connection.on("ReceiveSubscriptionLog", function (message) {
+                console.log("Received log message:", message);
+                logs.push(message);
+                renderLogs();
+            });
+
+            // Start the SignalR connection.
+            connection.start().then(function() {
+                console.log("SignalR connection established.");
+            }).catch(function(err) {
+                console.error("Error establishing SignalR connection:", err.toString());
+            });
+
+            // Update logs display when the search input changes.
+            searchInput.addEventListener("input", function() {
+                renderLogs();
+            });
+        });
+    </script>
+}

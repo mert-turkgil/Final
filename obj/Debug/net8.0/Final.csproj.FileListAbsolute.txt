@@ -52,6 +52,7 @@ C:\Users\mertu\Desktop\Final\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
 C:\Users\mertu\Desktop\Final\bin\Debug\net8.0\Microsoft.SqlServer.Server.dll
 C:\Users\mertu\Desktop\Final\bin\Debug\net8.0\Microsoft.Win32.SystemEvents.dll
 C:\Users\mertu\Desktop\Final\bin\Debug\net8.0\Mono.TextTemplating.dll
+C:\Users\mertu\Desktop\Final\bin\Debug\net8.0\MQTTnet.dll
 C:\Users\mertu\Desktop\Final\bin\Debug\net8.0\Newtonsoft.Json.dll
 C:\Users\mertu\Desktop\Final\bin\Debug\net8.0\Newtonsoft.Json.Bson.dll
 C:\Users\mertu\Desktop\Final\bin\Debug\net8.0\System.Resources.NetStandard.dll
@@ -134,6 +135,8 @@ C:\Users\mertu\Desktop\Final\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Run
 C:\Users\mertu\Desktop\Final\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Security.Cryptography.ProtectedData.dll
 C:\Users\mertu\Desktop\Final\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
 C:\Users\mertu\Desktop\Final\obj\Debug\net8.0\Final.csproj.AssemblyReference.cache
+C:\Users\mertu\Desktop\Final\obj\Debug\net8.0\Final.Resources.SharedResource.en-US.resources
+C:\Users\mertu\Desktop\Final\obj\Debug\net8.0\Final.Resources.SharedResource.tr-TR.resources
 C:\Users\mertu\Desktop\Final\obj\Debug\net8.0\Final.csproj.GenerateResource.cache
 C:\Users\mertu\Desktop\Final\obj\Debug\net8.0\Final.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\mertu\Desktop\Final\obj\Debug\net8.0\Final.AssemblyInfoInputs.cache
@@ -143,6 +146,7 @@ C:\Users\mertu\Desktop\Final\obj\Debug\net8.0\Final.MvcApplicationPartsAssemblyI
 C:\Users\mertu\Desktop\Final\obj\Debug\net8.0\Final.MvcApplicationPartsAssemblyInfo.cache
 C:\Users\mertu\Desktop\Final\obj\Debug\net8.0\Final.RazorAssemblyInfo.cache
 C:\Users\mertu\Desktop\Final\obj\Debug\net8.0\Final.RazorAssemblyInfo.cs
+C:\Users\mertu\Desktop\Final\obj\Debug\net8.0\Final.sourcelink.json
 C:\Users\mertu\Desktop\Final\obj\Debug\net8.0\en-US\Final.resources.cs
 C:\Users\mertu\Desktop\Final\obj\Debug\net8.0\en-US\Final.resources.dll
 C:\Users\mertu\Desktop\Final\obj\Debug\net8.0\tr-TR\Final.resources.cs
@@ -163,7 +167,3 @@ C:\Users\mertu\Desktop\Final\obj\Debug\net8.0\refint\Final.dll
 C:\Users\mertu\Desktop\Final\obj\Debug\net8.0\Final.pdb
 C:\Users\mertu\Desktop\Final\obj\Debug\net8.0\Final.genruntimeconfig.cache
 C:\Users\mertu\Desktop\Final\obj\Debug\net8.0\ref\Final.dll
-C:\Users\mertu\Desktop\Final\bin\Debug\net8.0\MQTTnet.dll
-C:\Users\mertu\Desktop\Final\obj\Debug\net8.0\Final.Resources.SharedResource.en-US.resources
-C:\Users\mertu\Desktop\Final\obj\Debug\net8.0\Final.Resources.SharedResource.tr-TR.resources
-C:\Users\mertu\Desktop\Final\obj\Debug\net8.0\Final.sourcelink.json

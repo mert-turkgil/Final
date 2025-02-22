@@ -1,0 +1,258 @@
+@model Final.Models.CompanyCreateViewModel
+
+<h2>Create Company, Topics & Tools</h2>
+<div asp-validation-summary="All" class="text-danger"></div>
+<form asp-action="CreateCompany" method="post">
+    <!-- Company Information -->
+    <div class="form-group">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="BaseTopic"></label>
+        <!-- This BaseTopic is used to build all topic previews -->
+        <input asp-for="BaseTopic" class="form-control" id="CompanyBaseTopic" />
+        <span asp-validation-for="BaseTopic" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="TopicTemplate"></label>
+        <input asp-for="TopicTemplate" class="form-control" id="TopicTemplate" />
+        <span asp-validation-for="TopicTemplate" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="HowMany"></label>
+        <input asp-for="HowMany" class="form-control" id="HowMany" type="number" min="1" />
+        <span asp-validation-for="HowMany" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="DataType"></label>
+        <select asp-for="DataType" class="form-control"
+                asp-items="Html.GetEnumSelectList<Final.Entity.TopicDataType>()">
+        </select>
+        <span asp-validation-for="DataType" class="text-danger"></span>
+    </div>
+    
+    <!-- Previews for Company-Level Topics -->
+    <hr />
+    <h3>Company Subscription Topics Preview</h3>
+    <p>
+        These topics (generated from your inputs) will be used for subscription:
+    </p>
+    <ul id="companySubscriptionPreview"></ul>
+    
+    <h3>Company Sending Topics</h3>
+    <p>
+        Define the topics that will be used for sending data.
+    </p>
+    <div id="sendingTopicsContainer">
+        <!-- Dynamic sending topic blocks will be added here -->
+    </div>
+    <button type="button" id="addSendingTopicBtn" class="btn btn-secondary">Add Sending Topic</button>
+    
+    <hr />
+    
+    <!-- Tools Section (as before) -->
+    <h3>Tools</h3>
+    <div id="toolsContainer">
+        <!-- Tool entries will be dynamically added here -->
+    </div>
+    <button type="button" id="addToolBtn" class="btn btn-secondary">Add Tool</button>
+    
+    <hr />
+    <button type="submit" class="btn btn-primary">Create Company</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            // --- Company Subscription Topics Preview ---
+            function updateCompanySubscriptionPreview() {
+                var baseTopic = document.getElementById("CompanyBaseTopic").value || "ciceklisogukhavadeposu";
+                var topicTemplate = document.getElementById("TopicTemplate").value || "control_room";
+                var howMany = parseInt(document.getElementById("HowMany").value) || 0;
+                var previewList = document.getElementById("companySubscriptionPreview");
+                previewList.innerHTML = "";
+                // Pattern: {BaseTopic}/{TopicTemplate}/{TopicTemplate}/{TopicTemplate}[i]/{TopicTemplate}
+                for (var i = 1; i <= howMany; i++) {
+                    var topicLine = baseTopic + "/" 
+                                    + topicTemplate + "/" 
+                                    + topicTemplate + "/" 
+                                    + topicTemplate + i + "/" 
+                                    + topicTemplate;
+                    var li = document.createElement("li");
+                    li.textContent = topicLine;
+                    previewList.appendChild(li);
+                }
+            }
+
+            // Bind update functions for company-level inputs.
+            document.getElementById("CompanyBaseTopic").addEventListener("input", updateCompanySubscriptionPreview);
+            document.getElementById("TopicTemplate").addEventListener("input", updateCompanySubscriptionPreview);
+            document.getElementById("HowMany").addEventListener("input", updateCompanySubscriptionPreview);
+            updateCompanySubscriptionPreview();
+
+            // --- Company Sending Topics Section ---
+            var sendingTopicIndex = 0;
+            function addSendingTopic() {
+                var container = document.getElementById("sendingTopicsContainer");
+                var div = document.createElement("div");
+                div.className = "sending-topic-block";
+                div.innerHTML = `
+                    <hr />
+                    <h4>Sending Topic #${sendingTopicIndex + 1}</h4>
+                    <div class="form-group">
+                        <label for="SendingTopics_${sendingTopicIndex}__TopicTemplate">Sending Topic Template</label>
+                        <input class="form-control sending-topic-template" type="text" id="SendingTopics_${sendingTopicIndex}__TopicTemplate" name="SendingTopics[${sendingTopicIndex}].TopicTemplate" />
+                    </div>
+                    <div class="form-group">
+                        <label for="SendingTopics_${sendingTopicIndex}__HowMany">How Many</label>
+                        <input class="form-control sending-topic-how-many" type="number" id="SendingTopics_${sendingTopicIndex}__HowMany" name="SendingTopics[${sendingTopicIndex}].HowMany" min="1" />
+                    </div>
+                    <div class="form-group">
+                        <label for="SendingTopics_${sendingTopicIndex}__DataType">Data Type</label>
+                        <select class="form-control" id="SendingTopics_${sendingTopicIndex}__DataType" name="SendingTopics[${sendingTopicIndex}].DataType">
+                            <option value="Int8">Int8</option>
+                            <option value="Int16">Int16</option>
+                            <option value="Int32">Int32</option>
+                            <option value="Int64">Int64</option>
+                            <option value="UInt8">UInt8</option>
+                            <option value="UInt16">UInt16</option>
+                            <option value="UInt32">UInt32</option>
+                            <option value="UInt64">UInt64</option>
+                            <option value="Float">Float</option>
+                            <option value="Double">Double</option>
+                            <option value="Decimal">Decimal</option>
+                            <option value="Boolean">Boolean</option>
+                            <option value="String">String</option>
+                            <option value="Byte64">Byte64</option>
+                        </select>
+                    </div>
+                    <div class="sending-topic-preview">
+                        <h5>Sending Topic Preview</h5>
+                        <ul id="sendingTopicPreviewList_${sendingTopicIndex}"></ul>
+                    </div>
+                `;
+                container.appendChild(div);
+
+                var sendingTopicTemplateInput = div.querySelector(".sending-topic-template");
+                var sendingHowManyInput = div.querySelector(".sending-topic-how-many");
+                var previewListId = "sendingTopicPreviewList_" + sendingTopicIndex;
+
+                function updateSendingTopicPreview() {
+                    var companyBaseTopic = document.getElementById("CompanyBaseTopic").value || "ciceklisogukhavadeposu";
+                    var sendingTemplate = sendingTopicTemplateInput.value || "custom_sending";
+                    var howMany = parseInt(sendingHowManyInput.value) || 0;
+                    var previewList = document.getElementById(previewListId);
+                    previewList.innerHTML = "";
+                    for (var i = 1; i <= howMany; i++) {
+                        // Example pattern: {CompanyBaseTopic}/{SendingTemplate}{i}
+                        var line = companyBaseTopic + "/" + sendingTemplate + i;
+                        var li = document.createElement("li");
+                        li.textContent = line;
+                        previewList.appendChild(li);
+                    }
+                }
+                sendingTopicTemplateInput.addEventListener("input", updateSendingTopicPreview);
+                sendingHowManyInput.addEventListener("input", updateSendingTopicPreview);
+                updateSendingTopicPreview();
+
+                sendingTopicIndex++;
+            }
+            document.getElementById("addSendingTopicBtn").addEventListener("click", addSendingTopic);
+            // Optionally add one default sending topic on load.
+            addSendingTopic();
+
+            // --- Tools Section (unchanged from before) ---
+            var toolIndex = 0;
+            function addTool() {
+                var toolDiv = document.createElement("div");
+                toolDiv.className = "tool-block";
+                toolDiv.innerHTML = `
+                <hr />
+                <h4>Tool #${toolIndex + 1}</h4>
+                <div class="form-group">
+                    <label asp-for="ToolName" for="Tools_${toolIndex}__ToolName">Tool Name</label>
+                    <input asp-for="ToolName" class="form-control" type="text" id="Tools_${toolIndex}__ToolName" name="Tools[${toolIndex}].ToolName" />
+                     <span asp-validation-for="ToolName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label for="Tools_${toolIndex}__ToolBaseTopic">Tool Base Topic</label>
+                    <input class="form-control" type="text" id="Tools_${toolIndex}__ToolBaseTopic" name="Tools[${toolIndex}].ToolBaseTopic" />
+                </div>
+                <div class="form-group">
+                    <label for="Tools_${toolIndex}__Description">Description</label>
+                    <textarea class="form-control" id="Tools_${toolIndex}__Description" name="Tools[${toolIndex}].Description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="Tools_${toolIndex}__ImageUrl">Image URL</label>
+                    <input class="form-control" type="text" id="Tools_${toolIndex}__ImageUrl" name="Tools[${toolIndex}].ImageUrl" />
+                </div>
+                <div class="form-group">
+                    <label for="Tools_${toolIndex}__TopicTemplate">Topic Template</label>
+                    <input class="form-control tool-topic-template" type="text" id="Tools_${toolIndex}__TopicTemplate" name="Tools[${toolIndex}].TopicTemplate" />
+                </div>
+                <div class="form-group">
+                    <label for="Tools_${toolIndex}__HowMany">How Many</label>
+                    <input class="form-control tool-how-many" type="number" id="Tools_${toolIndex}__HowMany" name="Tools[${toolIndex}].HowMany" min="1" />
+                </div>
+                <div class="form-group">
+                    <label for="Tools_${toolIndex}__DataType">Data Type</label>
+                    <select class="form-control" id="Tools_${toolIndex}__DataType" name="Tools[${toolIndex}].DataType">
+                        <option value="Int8">Int8</option>
+                        <option value="Int16">Int16</option>
+                        <option value="Int32">Int32</option>
+                        <option value="Int64">Int64</option>
+                        <option value="UInt8">UInt8</option>
+                        <option value="UInt16">UInt16</option>
+                        <option value="UInt32">UInt32</option>
+                        <option value="UInt64">UInt64</option>
+                        <option value="Float">Float</option>
+                        <option value="Double">Double</option>
+                        <option value="Decimal">Decimal</option>
+                        <option value="Boolean">Boolean</option>
+                        <option value="String">String</option>
+                        <option value="Byte64">Byte64</option>
+                    </select>
+                </div>
+                <div class="tool-preview">
+                    <h5>Tool Subscription Topics Preview</h5>
+                    <p>Example pattern: {CompanyBaseTopic}/{TopicTemplate}[i]/status</p>
+                    <ul id="toolPreviewList_${toolIndex}"></ul>
+                </div>
+                `;
+                
+                document.getElementById("toolsContainer").appendChild(toolDiv);
+                
+                var topicTemplateInput = toolDiv.querySelector(".tool-topic-template");
+                var howManyInput = toolDiv.querySelector(".tool-how-many");
+                var previewListId = "toolPreviewList_" + toolIndex;
+                
+                function updateToolPreview() {
+                    var companyBaseTopic = document.getElementById("CompanyBaseTopic").value || "ciceklisogukhavadeposu";
+                    var topicTemplate = topicTemplateInput.value || "control_room/compressor";
+                    var howMany = parseInt(howManyInput.value) || 0;
+                    var previewList = document.getElementById(previewListId);
+                    previewList.innerHTML = "";
+                    for (var i = 1; i <= howMany; i++) {
+                        var topicLine = companyBaseTopic + "/" + topicTemplate + i + "/status";
+                        var li = document.createElement("li");
+                        li.textContent = topicLine;
+                        previewList.appendChild(li);
+                    }
+                }
+                
+                topicTemplateInput.addEventListener("input", updateToolPreview);
+                howManyInput.addEventListener("input", updateToolPreview);
+                updateToolPreview();
+                
+                toolIndex++;
+            }
+            
+            document.getElementById("addToolBtn").addEventListener("click", addTool);
+            addTool(); // Add one default tool on load.
+        });
+    </script>
+}

@@ -20,8 +20,6 @@
         @foreach (var company in Model.Companies)
         {
             <div class="company-section my-4">
-                <h3>@company.Name</h3>
-                <p>Base Topic: @company.BaseTopic</p>
                 @await Component.InvokeAsync("MqttLogs", new { companyId = company.Id })
             </div>
         }
@@ -208,54 +206,5 @@
                 // You can add additional DataTables options here
             });
         });
-    </script>
-        <!-- Ensure you have the SignalR client library referenced. Adjust the path as needed -->
-    <script src="~/lib/signalr/signalr.js"></script>
-    <script>
-        (function () {
-            // Retrieve the company ID from ViewData passed into the view component.
-            const companyId = '@ViewData["CompanyId"]';
-            // Optionally, map the companyId to a group name. For example, if your companies use their BaseTopic as group name.
-            // For this example, we'll use the companyId as a string.
-            const groupName = companyId; 
-
-            // Create the SignalR connection to your NotificationHub.
-            const connection = new signalR.HubConnectionBuilder()
-                .withUrl("/notificationHub")
-                .build();
-
-            // Listen for subscription log messages.
-            connection.on("ReceiveSubscriptionLog", function (log) {
-                appendLog(log);
-            });
-
-            // Listen for MQTT message events.
-            connection.on("ReceiveMqttMessage", function (topic, payload) {
-                const log = `[${new Date().toLocaleTimeString()}] [Message] Topic: ${topic}, Payload: ${payload}`;
-                appendLog(log);
-            });
-
-            // Start the connection.
-            connection.start().then(function () {
-                console.log("SignalR connected for MQTT Logs.");
-                // Optionally, join the group for the current company.
-                // Uncomment and adjust if your hub uses groups:
-                // connection.invoke("JoinGroup", groupName);
-            }).catch(function (err) {
-                console.error(err.toString());
-            });
-
-            // Helper function to append a new log entry.
-            function appendLog(message) {
-                const container = document.getElementById("mqttLogsContainer");
-                if (container) {
-                    const div = document.createElement("div");
-                    div.textContent = message;
-                    container.appendChild(div);
-                    // Optionally, scroll to the bottom.
-                    container.scrollTop = container.scrollHeight;
-                }
-            }
-        })();
     </script>
 }

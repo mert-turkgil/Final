@@ -1,7 +1,9 @@
 @model List<SelectListItem>
-
+@{
+    var uniqueId = "culture_" + Guid.NewGuid().ToString("N"); // Generates a unique ID
+}
 <form id="language-selector" asp-controller="Home" asp-action="SetLanguage" asp-route-returnUrl="@Context.Request.Path" method="post">
-<select class="form-select border-primary" name="culture" id="culture" onchange="this.form.submit()">
+<select aria-label="Select Language" class="form-select border-primary" name="culture" id="@uniqueId" onchange="this.form.submit()">
   @foreach (var culture in Model.Where(c => c.Value == "en-US" || c.Value == "tr-TR"))
 {
     if (culture.Selected)

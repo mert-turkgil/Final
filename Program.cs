@@ -68,30 +68,30 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.LoginPath = "/Home/Index";
-    options.LogoutPath = "/logout";
-    options.AccessDeniedPath = "/accessdenied";
+    options.LoginPath = "/Home/Index"; 
+    options.LogoutPath = "/logout"; 
+    options.AccessDeniedPath = "/accessdenied"; 
     options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
     options.SlidingExpiration = true;
-
     options.Cookie = new CookieBuilder
     {
-        HttpOnly = true,
+        HttpOnly = true, 
         Name = ".FinalCop.Security.Cookie",
-        SameSite = SameSiteMode.None,
-        SecurePolicy = CookieSecurePolicy.Always
+        SameSite = SameSiteMode.Lax, 
+        SecurePolicy = CookieSecurePolicy.Always, 
+        IsEssential = true 
     };
 });
 #endregion
 
 #region Register injection
+builder.Services.AddSession();
 builder.Services.AddScoped<IShopUnitOfWork, ShopUnitOfWork>();
 builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
 builder.Services.AddScoped<IMqttToolRepository, MqttToolRepository>();
 builder.Services.AddScoped<IMqttTopicRepository, MqttTopicRepository>();
-
 builder.Services.AddSingleton<IMqttService, MqttService>();
-
+builder.Services.AddSingleton<IMqttLogService, MqttLogService>();
 // Register the hosted MQTT background service once
 builder.Services.AddHostedService<MqttBackgroundService>();
 #endregion
@@ -105,6 +105,7 @@ builder.Services.AddSignalR();
 builder.Services.AddSingleton<LanguageService>();
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 builder.Services.AddMvc()
+    .AddSessionStateTempDataProvider()
     .AddViewLocalization()
     .AddDataAnnotationsLocalization(options =>
     {
@@ -289,6 +290,7 @@ app.MapHub<NotificationHub>("/notificationHub");
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+app.UseSession();
 #endregion
 
 app.Run();
