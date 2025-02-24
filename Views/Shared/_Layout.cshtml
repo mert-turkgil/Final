@@ -3,16 +3,14 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Final</title>
+    <title>@ViewData["Title"] - Final</title> 
     <!-- Bootstrap 5 CSS -->
     <link rel="stylesheet" href="~/css/bootstrap.min.css">
-    <!-- DataTables + Bootstrap 5 integration CSS -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
-    
+    <link rel="stylesheet" href="~/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="~/css/responsive.bootstrap5.min.css">
     <!-- Font Awesome (optional) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
     @RenderSection("Css", required: false)
 </head>
 <body>
@@ -44,18 +42,27 @@
 
 
      @await Html.PartialAsync("_Footer")
-    <!-- jQuery (required by DataTables) -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+    <!-- jQuery (Load First) -->
+    <script src="~/js/jquery.min.js"></script>
     <!-- Bootstrap 5 JS -->
     <script src="~/js/bootstrap.bundle.min.js"></script>
-    <!-- DataTables + Bootstrap 5 integration JS -->
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-    <!-- DataTables Responsive extension -->
-    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
-    <script src="~/js/type-writer.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <!-- jQuery Validation -->
+    <script src="~/js/jquery.validate.min.js"></script>
+    <!-- DataTables Core (Load Before Extensions) -->
+    <script src="~/js/jquery.dataTables.min.js"></script>
+    <!-- DataTables Bootstrap 5 Integration -->
+    <script src="~/js/dataTables.bootstrap5.min.js"></script>
+    <!-- DataTables Responsive -->
+    <script src="~/js/dataTables.responsive.min.js"></script>
+    <script src="~/js/responsive.bootstrap5.min.js"></script>
+    <!-- SignalR -->
+    <script src="~/js/signalr.min.js"></script>
+    <!-- jQuery Unobtrusive Validation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.11/jquery.validate.unobtrusive.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.11/jquery.validate.unobtrusive.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

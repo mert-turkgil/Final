@@ -9,12 +9,12 @@
       "PackagePath": "staticwebassets\\css\\bootstrap.min.css"
     },
     {
-      "Id": "C:\\Users\\mertu\\Desktop\\Final\\wwwroot\\css\\bootstrap.min.css.map",
-      "PackagePath": "staticwebassets\\css\\bootstrap.min.css.map"
+      "Id": "C:\\Users\\mertu\\Desktop\\Final\\wwwroot\\css\\dataTables.bootstrap5.min.css",
+      "PackagePath": "staticwebassets\\css\\dataTables.bootstrap5.min.css"
     },
     {
-      "Id": "C:\\Users\\mertu\\Desktop\\Final\\wwwroot\\css\\site.css",
-      "PackagePath": "staticwebassets\\css\\site.css"
+      "Id": "C:\\Users\\mertu\\Desktop\\Final\\wwwroot\\css\\responsive.bootstrap5.min.css",
+      "PackagePath": "staticwebassets\\css\\responsive.bootstrap5.min.css"
     },
     {
       "Id": "C:\\Users\\mertu\\Desktop\\Final\\wwwroot\\favicon.ico",
@@ -25,8 +25,36 @@
       "PackagePath": "staticwebassets\\img\\Logo_of_Twitter.svg.png"
     },
     {
-      "Id": "C:\\Users\\mertu\\Desktop\\Final\\wwwroot\\js\\bootstrap.bundle.js",
-      "PackagePath": "staticwebassets\\js\\bootstrap.bundle.js"
+      "Id": "C:\\Users\\mertu\\Desktop\\Final\\wwwroot\\js\\bootstrap.bundle.min.js",
+      "PackagePath": "staticwebassets\\js\\bootstrap.bundle.min.js"
+    },
+    {
+      "Id": "C:\\Users\\mertu\\Desktop\\Final\\wwwroot\\js\\dataTables.bootstrap5.min.js",
+      "PackagePath": "staticwebassets\\js\\dataTables.bootstrap5.min.js"
+    },
+    {
+      "Id": "C:\\Users\\mertu\\Desktop\\Final\\wwwroot\\js\\dataTables.responsive.min.js",
+      "PackagePath": "staticwebassets\\js\\dataTables.responsive.min.js"
+    },
+    {
+      "Id": "C:\\Users\\mertu\\Desktop\\Final\\wwwroot\\js\\jquery.dataTables.min.js",
+      "PackagePath": "staticwebassets\\js\\jquery.dataTables.min.js"
+    },
+    {
+      "Id": "C:\\Users\\mertu\\Desktop\\Final\\wwwroot\\js\\jquery.min.js",
+      "PackagePath": "staticwebassets\\js\\jquery.min.js"
+    },
+    {
+      "Id": "C:\\Users\\mertu\\Desktop\\Final\\wwwroot\\js\\jquery.validate.min.js",
+      "PackagePath": "staticwebassets\\js\\jquery.validate.min.js"
+    },
+    {
+      "Id": "C:\\Users\\mertu\\Desktop\\Final\\wwwroot\\js\\responsive.bootstrap5.min.js",
+      "PackagePath": "staticwebassets\\js\\responsive.bootstrap5.min.js"
+    },
+    {
+      "Id": "C:\\Users\\mertu\\Desktop\\Final\\wwwroot\\js\\signalr.min.js",
+      "PackagePath": "staticwebassets\\js\\signalr.min.js"
     },
     {
       "Id": "C:\\Users\\mertu\\Desktop\\Final\\wwwroot\\js\\type-writer.js",

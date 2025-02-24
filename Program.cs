@@ -65,7 +65,17 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
 .AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
-
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:5196")
+                .AllowAnyHeader()
+                .WithMethods("GET", "POST")
+                .AllowCredentials();
+        });
+});
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Home/Index"; 
@@ -284,7 +294,7 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseCors();
 app.MapHub<NotificationHub>("/notificationHub");
 
 app.MapControllerRoute(
