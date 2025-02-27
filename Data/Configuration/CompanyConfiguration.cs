@@ -1,7 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Final.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -14,10 +11,8 @@ namespace Final.Data.Configuration
         {
             builder.ToTable("Companies");
 
-            // Primary Key (EF will use Id by convention, but you can specify explicitly)
             builder.HasKey(c => c.Id);
 
-            // Property configurations
             builder.Property(c => c.Name)
                    .IsRequired()
                    .HasMaxLength(100);
@@ -26,8 +21,14 @@ namespace Final.Data.Configuration
                    .IsRequired()
                    .HasMaxLength(200);
 
-            // Relationships (if any)
+            // When a Company is deleted, its Tools are deleted.
             builder.HasMany(c => c.Tools)
+                   .WithOne(t => t.Company)
+                   .HasForeignKey(t => t.CompanyId)
+                   .OnDelete(DeleteBehavior.Cascade);
+
+            // When a Company is deleted, its Topics are deleted.
+            builder.HasMany(c => c.Topics)
                    .WithOne(t => t.Company)
                    .HasForeignKey(t => t.CompanyId)
                    .OnDelete(DeleteBehavior.Cascade);

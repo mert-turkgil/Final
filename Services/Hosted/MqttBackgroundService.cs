@@ -4,8 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Final.Data.Abstract;
 using Final.Entity;
-using Final.Hubs;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -22,7 +20,7 @@ namespace Final.Services.Hosted
 
         public MqttBackgroundService(
             IMqttService mqttService,
-            IServiceProvider serviceProvider,  // Used to create scopes
+            IServiceProvider serviceProvider,
             ILogger<MqttBackgroundService> logger,
             IMqttLogService mqttLogService)
         {
@@ -37,11 +35,13 @@ namespace Final.Services.Hosted
             _logger.LogInformation("Starting MQTT Background Service");
             _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
+            // Hook up our message handler.
             _mqttService.MessageReceived += OnMqttMessageReceived;
 
+            // Connect to the MQTT broker.
             await _mqttService.ConnectAsync();
 
-            // Create a scope to retrieve companies from the database.
+            // Create a scope to retrieve data from the database.
             using (var scope = _serviceProvider.CreateScope())
             {
                 var unitOfWork = scope.ServiceProvider.GetRequiredService<IShopUnitOfWork>();
@@ -49,21 +49,29 @@ namespace Final.Services.Hosted
 
                 foreach (var company in companies)
                 {
-                    _logger.LogInformation($"Subscribing for company: {company.Name}, BaseTopic: {company.BaseTopic}");
+                    _logger.LogInformation($"Subscribing for company: {company.Name}");
 
+                    // 1. Subscribe to company-level topics (where MqttToolId == null),
+                    //    but only those with TopicPurpose == Subscription.
+                    var companyTopics = await unitOfWork.MqttTopicRepository.GetByCompanyIdAndNoToolAsync(company.Id);
+                    foreach (var topic in companyTopics.Where(t => t.TopicPurpose == TopicPurpose.Subscription))
+                    {
+                        string topicToSubscribe = topic.TopicTemplate;
+                        string logMessage = $"Subscribing to company topic: {topicToSubscribe}";
+                        _mqttLogService.AddLog(company.Id, company.Name, logMessage);
+                        _logger.LogInformation(logMessage);
+                        await _mqttService.SubscribeAsync(topicToSubscribe);
+                    }
+
+                    // 2. Subscribe to each tool's topics, but only if they are for Subscription.
                     foreach (var tool in company.Tools)
                     {
-                        // Subscribe only to topics marked for Subscription
                         foreach (var topic in tool.Topics.Where(t => t.TopicPurpose == TopicPurpose.Subscription))
                         {
                             string topicToSubscribe = topic.TopicTemplate;
-                            string logMessage = $"[>>{DateTime.Now:HH:mm:ss}] [Info] Company {company.Id}: Subscribing to topic: {topicToSubscribe}";
-                            
-                            // Log the subscription event in the logging service.
-                            _mqttLogService.AddLog(company.Id,company.Name,logMessage);
+                            string logMessage = $"Subscribing to tool topic: {topicToSubscribe}";
+                            _mqttLogService.AddLog(company.Id, company.Name, logMessage);
                             _logger.LogInformation(logMessage);
-                            
-                            // Subscribe to the topic.
                             await _mqttService.SubscribeAsync(topicToSubscribe);
                         }
                     }
@@ -74,19 +82,21 @@ namespace Final.Services.Hosted
         private async void OnMqttMessageReceived(object? sender, MqttMessageReceivedEventArgs e)
         {
             _logger.LogInformation($"MQTT - Topic: {e.Topic}, Payload: {e.Payload}");
-            
-            // Create a new scope to resolve IShopUnitOfWork.
+
+            // Create a scope to resolve IShopUnitOfWork and log the incoming message.
             using (var scope = _serviceProvider.CreateScope())
             {
                 var unitOfWork = scope.ServiceProvider.GetRequiredService<IShopUnitOfWork>();
                 var companies = await unitOfWork.CompanyRepository.GetAllAsync();
-                var company = companies.FirstOrDefault(c => e.Topic.Contains(c.BaseTopic, StringComparison.OrdinalIgnoreCase));
+
+                // Find which company this topic might belong to by matching BaseTopic.
+                var company = companies.FirstOrDefault(c => 
+                    e.Topic.Contains(c.BaseTopic, StringComparison.OrdinalIgnoreCase));
+
                 if (company != null)
                 {
-                    string message = $"[Info] - Received: {e.Topic} -> {e.Payload}";
-                    
-                    // Log the message.
-                    _mqttLogService.AddLog(company.Id,company.Name,message);
+                    string message = $"Received: {e.Topic} -> {e.Payload}";
+                    _mqttLogService.AddLog(company.Id, company.Name, message);
                     _logger.LogInformation(message);
                 }
                 else

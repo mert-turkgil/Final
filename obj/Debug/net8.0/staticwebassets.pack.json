@@ -61,6 +61,10 @@
       "PackagePath": "staticwebassets\\js\\type-writer.js"
     },
     {
+      "Id": "C:\\Users\\mertu\\Desktop\\Final\\wwwroot\\uploads\\giphy (1).gif",
+      "PackagePath": "staticwebassets\\uploads\\giphy (1).gif"
+    },
+    {
       "Id": "C:\\Users\\mertu\\Desktop\\Final\\wwwroot\\vid\\background.mp4",
       "PackagePath": "staticwebassets\\vid\\background.mp4"
     },

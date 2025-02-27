@@ -31,6 +31,9 @@ namespace Final.Entity
         public Guid? MqttToolId { get; set; }
         public virtual MqttTool MqttTool { get; set; }
         public byte[] Data64 { get; set; } = new byte[64];
+        [Required]
+        public Guid CompanyId { get; set; }
+        public virtual Company Company { get; set; }
 
     }
 }

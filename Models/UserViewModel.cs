@@ -18,7 +18,7 @@ namespace Final.Models
         // Companies with their tools and topics (e.g., rooms)
         public List<CompanyDto> Companies { get; set; } = new List<CompanyDto>();
         // Role management data
-        public List<IdentityRole> Roles { get; set; } = new List<IdentityRole>();
+        public List<ApplicationRole> Roles { get; set; } = new List<ApplicationRole>(); // Updated type
     }
         public class CompanyDto
     {

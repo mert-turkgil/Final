@@ -9,12 +9,9 @@
 @if (User.IsInRole("Admin") || User.IsInRole("Root"))
 {
     <div class="companies">
-        @foreach (var company in Model.Companies)
-        {
             <div class="company-section my-4">
-                @await Component.InvokeAsync("MqttLogs", new { companyId = company.Id })
+               @await Component.InvokeAsync("MqttLogs")
             </div>
-        }
     </div>
 
 
@@ -53,29 +50,14 @@
         </div>
     </div>
     </section>
-}
+
 
 <div class="container my-5 animate__animated animate__fadeIn">
-    <!-- User Account Information -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="mb-0">Welcome, @Model.FirstName @Model.LastName</h2>
-                </div>
-                <div class="card-body">
-                    <p class="lead"><strong>Username:</strong> @Model.UserName</p>
-                    <p class="lead"><strong>Name:</strong> @Model.FirstName @Model.LastName</p>
-                    <a class="btn btn-danger" href="@Url.Action("Logout", "Home")">Logout</a>
-                </div>
-            </div>
-        </div>
-    </div>
     <!-- Companies, Tools, and Topics -->
     <div class="row">
         @foreach (var company in Model.Companies)
         {
-            <div class="col-lg-6 col-md-12 mb-4">
+            <div class="col-lg-6 col-md-12 mb-4 w-100">
                 <div class="card h-100 shadow animate__animated animate__zoomIn">
                     <div class="card-header bg-info text-white">
                         <h3 class="card-title">@company.Name</h3>
@@ -86,7 +68,7 @@
                         {
                             foreach (var tool in company.Tools)
                             {
-                                <div class="mb-3">
+                                <div class="mb-3 animate__animated animate__fadeIn">
                                     <h5 class="text-secondary">@tool.Name</h5>
                                     <p>@tool.Description</p>
                                     @if (tool.Topics != null && tool.Topics.Any())
@@ -117,7 +99,7 @@
                                     }
                                     else
                                     {
-                                        <p class="text-muted">No topics available.</p>
+                                        <p class="text-muted">No topics available for this tool.</p>
                                     }
                                 </div>
                             }
@@ -132,7 +114,7 @@
         }
     </div>
 </div>
-
+}
 
 @section Scripts {
 <script>
@@ -189,79 +171,78 @@
             });
         });
     </script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        if (!window.signalR) {
-            console.error("SignalR library is not loaded.");
-            return;
-        }
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            if (!window.signalR) {
+                console.error("SignalR library is not loaded.");
+                return;
+            }
 
-        const connection = new signalR.HubConnectionBuilder()
-            .withUrl("/notificationHub")
-            .withAutomaticReconnect() // Enables automatic reconnect
-            .build();
+            // Create a single SignalR connection.
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("/notificationHub")
+                .withAutomaticReconnect()
+                .build();
 
-        const logMessagesDiv = document.getElementById("logMessages");
-        const searchInput = document.getElementById("logSearch");
+            const logMessagesDiv = document.getElementById("logMessages");
+            const searchInput = document.getElementById("logSearch");
 
-        if (!logMessagesDiv || !searchInput) {
-            console.error("Required DOM elements not found.");
-            return;
-        }
+            if (!logMessagesDiv || !searchInput) {
+                console.error("Required DOM elements not found.");
+                return;
+            }
 
-        let logs = []; // Change from Set to an Array
+            // Use an array to store log entries (preserving HTML formatting).
+            let logs = [];
 
-        // Initialize logs with existing logs from Razor (server-rendered logs)
-        document.querySelectorAll(".log-entry").forEach((logDiv) => {
-            logs.push(logDiv.textContent.trim());
-        });
-
-        function renderLogs() {
-            const query = searchInput.value.toLowerCase().trim();
-            const nearBottom = (logMessagesDiv.scrollHeight - logMessagesDiv.scrollTop) <= (logMessagesDiv.clientHeight + 50);
-
-            logMessagesDiv.innerHTML = ""; // Clear existing messages
-
-            logs.filter(log => log.toLowerCase().includes(query)).forEach((log) => {
-                let logDiv = document.createElement("div");
-                logDiv.className = "log-entry";
-                logDiv.style.padding = "2px 5px";
-                logDiv.style.borderBottom = "1px solid #eee";
-                logDiv.textContent = log;
-                logMessagesDiv.appendChild(logDiv);
+            // Initialize logs with server-rendered logs.
+            document.querySelectorAll(".log-entry").forEach((logDiv) => {
+                // Use innerHTML so that color spans remain.
+                logs.push(logDiv.innerHTML.trim());
             });
 
-            if (nearBottom) {
-                logMessagesDiv.scrollTop = logMessagesDiv.scrollHeight;
+            function renderLogs() {
+                const query = searchInput.value.toLowerCase().trim();
+                // Clear the container.
+                logMessagesDiv.innerHTML = "";
+                // Filter logs by query, preserving the HTML markup.
+                logs.filter(log => log.toLowerCase().includes(query)).forEach((log) => {
+                    let logDiv = document.createElement("div");
+                    logDiv.className = "log-entry";
+                    logDiv.style.padding = "2px 5px";
+                    logDiv.style.borderBottom = "1px solid #eee";
+                    logDiv.innerHTML = log; // Use innerHTML
+                    logMessagesDiv.appendChild(logDiv);
+                });
             }
-        }
 
-        connection.on("ReceiveSubscriptionLog", function (message) {
-            console.log("Received log message:", message);
-            
-            logs.push(message); // Store message in the logs array
-            renderLogs(); // Render logs after adding new one
+            // Auto-refresh the console every 1 minute.
+            setInterval(renderLogs, 60000);
+
+            connection.on("ReceiveSubscriptionLog", function (message) {
+                console.log("Received log message:", message);
+                logs.push(message); // Append new message.
+                renderLogs();
+            });
+
+            connection.start()
+                .then(() => console.log("SignalR connection established."))
+                .catch((err) => console.error("Error establishing SignalR connection:", err.toString()));
+
+            searchInput.addEventListener("input", renderLogs);
+
+            connection.onreconnecting(() => {
+                console.warn("Reconnecting to SignalR...");
+            });
+
+            connection.onreconnected(() => {
+                console.log("Reconnected to SignalR.");
+            });
+
+            connection.onclose(() => {
+                console.error("SignalR connection lost.");
+            });
         });
-
-        connection.start()
-            .then(() => console.log("SignalR connection established."))
-            .catch((err) => console.error("Error establishing SignalR connection:", err.toString()));
-
-        searchInput.addEventListener("input", renderLogs); // Call renderLogs when search input changes
-
-        connection.onreconnecting(() => {
-            console.warn("Reconnecting to SignalR...");
-        });
-
-        connection.onreconnected(() => {
-            console.log("Reconnected to SignalR.");
-        });
-
-        connection.onclose(() => {
-            console.error("SignalR connection lost.");
-        });
-    });
-</script>
-
+    </script>
 
 }

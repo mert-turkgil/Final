@@ -35,9 +35,8 @@ builder.Services.AddDbContext<ShopContext>(options =>
 #endregion
 
 #region Identity & Cookie Configuration
-builder.Services.AddIdentity<User, IdentityRole>(options =>
+builder.Services.AddIdentity<User, ApplicationRole>(options =>
 {
-    
     // Sign-in settings
     options.SignIn.RequireConfirmedAccount = false;
     options.SignIn.RequireConfirmedEmail = false;
@@ -62,9 +61,10 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
     // Set the RoleClaimType directly here
     options.ClaimsIdentity.RoleClaimType = System.Security.Claims.ClaimTypes.Role;
 })
-.AddRoles<IdentityRole>()
-.AddEntityFrameworkStores<ApplicationDbContext>()
+.AddEntityFrameworkStores<ApplicationDbContext>() // Ensure you're using your ShopContext here.
 .AddDefaultTokenProviders();
+
+
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(
@@ -164,7 +164,7 @@ app.UseRequestLocalization(localizationOptions);
 #region User Checking & Seeding
 using (var scope = app.Services.CreateScope())
 {
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
     var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
 

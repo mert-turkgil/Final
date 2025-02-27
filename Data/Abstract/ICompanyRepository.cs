@@ -5,7 +5,8 @@ namespace Final.Data.Abstract
 {
     public interface ICompanyRepository : IRepository<Company>
     {
-        // Example specialized method
         Task<Company?> GetCompanyByNameAsync(string name);
+        Task<Company?> GetByIdWithToolsAsync(Guid id);
+        Task<List<Company>> GetAllWithToolsAndTopicsAsync();
     }
 }

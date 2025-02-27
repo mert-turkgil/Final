@@ -22,9 +22,12 @@
                     <td>@company.Name</td>
                     <td>@company.BaseTopic</td>
                     <td>
-                        <a asp-action="EditCompany" asp-controller="Home" asp-route-companyId="@company.Id" class="btn btn-sm btn-warning">Edit</a>
-                        <a asp-action="DeleteCompany" asp-route-companyId="@company.Id" 
-                                   class="btn btn-danger btn-sm">Delete</a>
+                        <a asp-action="EditCompany" asp-controller="Home" asp-route-id="@company.Id" class="btn btn-sm btn-warning">Edit</a>
+                        <form asp-controller="Home" asp-action="DeleteCompany" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@company.Id" />
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
                     </td>
                 </tr>
             }

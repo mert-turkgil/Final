@@ -1,13 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Final.Entity;  // for TopicDataType and TopicPurpose enums
+using Final.Entity;
 
 namespace Final.Models
 {
     #nullable disable
-    public class CompanyCreateViewModel
+    public class CompanyEditViewModel
     {
+        [Required]
+        public Guid Id { get; set; }
+        
         [Required]
         public string Name { get; set; }
         
@@ -16,17 +19,19 @@ namespace Final.Models
         
         // Company-level Topic Templates for subscription or sending.
         // You can have multiple templates with different layouts.
-        public List<CompanyTopicTemplateViewModel> CompanyTopicTemplates { get; set; } = new List<CompanyTopicTemplateViewModel>();
+        public List<EditCompanyTopicTemplateViewModel> CompanyTopicTemplates { get; set; } = new List<EditCompanyTopicTemplateViewModel>();
 
         // Alternatively, if you wish to differentiate sending topics, you can add:
-        public List<CompanyTopicTemplateViewModel> SendingTopics { get; set; } = new List<CompanyTopicTemplateViewModel>();
+        public List<EditCompanyTopicTemplateViewModel> SendingTopics { get; set; } = new List<EditCompanyTopicTemplateViewModel>();
 
         // Tools for the company.
-        public List<ToolCreateViewModel> Tools { get; set; } = new List<ToolCreateViewModel>();
+        public List<ToolEditViewModel> Tools { get; set; } = new List<ToolEditViewModel>();
     }
 
-    public class CompanyTopicTemplateViewModel
+    public class EditCompanyTopicTemplateViewModel
     {
+        [Required]
+        public int Id { get; set; }
         /// <summary>
         /// The topic pattern that can contain a placeholder {seq} which will be replaced
         /// sequentially from 1 to HowMany. For example: 
@@ -49,8 +54,10 @@ namespace Final.Models
         public TopicPurpose TopicPurpose { get; set; }
     }
 
-    public class ToolCreateViewModel
+    public class ToolEditViewModel
     {
+        [Required]
+        public Guid Id { get; set; }
         [Required]
         public string ToolName { get; set; }
         
@@ -59,14 +66,15 @@ namespace Final.Models
         
         public string Description { get; set; }
         
-        public IFormFile ImageFile { get; set; }
         public string ImageUrl { get; set; }
+        // New property for file upload:
+        public IFormFile ImageFile { get; set; }
         
         // Topic Templates for this tool.
-        public List<ToolTopicTemplateViewModel> TopicTemplates { get; set; } = new List<ToolTopicTemplateViewModel>();
+        public List<EditToolTopicTemplateViewModel> TopicTemplates { get; set; } = new List<EditToolTopicTemplateViewModel>();
     }
     
-    public class ToolTopicTemplateViewModel
+    public class EditToolTopicTemplateViewModel
     {
         /// <summary>
         /// The topic pattern for this tool. It can include a placeholder {seq}

@@ -10,7 +10,7 @@ namespace Final.Services
         /// <summary>
         /// Connects to the MQTT broker.
         /// </summary>
-        Task ConnectAsync();
+         Task ConnectAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Disconnects from the MQTT broker.

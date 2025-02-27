@@ -15,5 +15,24 @@ namespace Final.Data.Concrete
         {
             return await _dbSet.FirstOrDefaultAsync(c => c.Name == name);
         }
+        public async Task<Company?> GetByIdWithToolsAsync(Guid id)
+        {
+            return await _dbSet
+                .Include(c => c.Tools)
+                    .ThenInclude(t => t.Topics)
+                .FirstOrDefaultAsync(c => c.Id == id);
+        }
+
+        public async Task<List<Company>> GetAllWithToolsAndTopicsAsync()
+        {
+            return await _dbSet
+                .Include(c => c.Topics)         // Company-level topics
+                .Include(c => c.Tools)
+                    .ThenInclude(t => t.Topics)  // Tool-level topics
+                .Include(c => c.CompanyRoles)    // Roles if needed
+                .ToListAsync();
+        }
+
+
     }
 }

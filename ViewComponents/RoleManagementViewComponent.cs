@@ -13,10 +13,10 @@ namespace Final.ViewComponents
 {
     public class RoleManagementViewComponent : ViewComponent
     {
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly IShopUnitOfWork _unitOfWork;
 
-        public RoleManagementViewComponent(RoleManager<IdentityRole> roleManager, IShopUnitOfWork unitOfWork)
+        public RoleManagementViewComponent(RoleManager<ApplicationRole> roleManager, IShopUnitOfWork unitOfWork)
         {
             _roleManager = roleManager;
             _unitOfWork = unitOfWork;
@@ -27,7 +27,6 @@ namespace Final.ViewComponents
         {
             var roles = _roleManager.Roles.ToList();
             var companies = await _unitOfWork.CompanyRepository.GetAllAsync();
-
             var companyDtos = companies.Select(c => new CompanyDto
             {
                 Id = c.Id,
@@ -36,12 +35,11 @@ namespace Final.ViewComponents
                 RoleIds = c.CompanyRoles.Select(cr => cr.RoleId).ToList()
             }).ToList();
 
-            var viewModel = new Final.Models.RoleManagementViewModel
+            var viewModel = new RoleManageViewModel
             {
                 Roles = roles,
                 Companies = companyDtos
             };
-
 
             return View(viewModel);
         }
@@ -52,11 +50,12 @@ namespace Final.ViewComponents
             {
                 return new JsonResult(new { message = "Role name is required" });
             }
-            var result = await _roleManager.CreateAsync(new IdentityRole(roleName));
+            var result = await _roleManager.CreateAsync(new ApplicationRole(roleName));
             return result.Succeeded
                 ? new JsonResult(new { message = "Role created successfully" })
                 : new JsonResult(result.Errors);
         }
+
 
         // Deletes the role identified by roleId.
         public async Task<IActionResult> DeleteRole(string roleId)

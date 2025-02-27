@@ -10,5 +10,6 @@ namespace Final.Services
     {
         void AddLog(Guid companyId, string companyName, string message);
         List<MqttLog> GetLogs(Guid companyId);
+        List<MqttLog> GetAllLogs();
     }
 }

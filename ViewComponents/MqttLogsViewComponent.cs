@@ -16,9 +16,10 @@ namespace Final.ViewComponents
 
         public Task<IViewComponentResult> InvokeAsync(Guid? companyId = null)
         {
-            var id = companyId ?? Guid.Empty;
-            var logs = _mqttLogService.GetLogs(id);
-            ViewData["CompanyId"] = id; 
+            var logs = (companyId.HasValue && companyId.Value != Guid.Empty)
+                ? _mqttLogService.GetLogs(companyId.Value)
+                : _mqttLogService.GetAllLogs();
+
             return Task.FromResult<IViewComponentResult>(View(logs));
         }
     }

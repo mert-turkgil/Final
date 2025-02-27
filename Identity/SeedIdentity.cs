@@ -8,7 +8,7 @@ namespace Final.Identity
 {
     public static class SeedIdentity
     {
-        public static async Task Seed(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
+        public static async Task Seed(UserManager<User> userManager, RoleManager<ApplicationRole> roleManager, IConfiguration configuration)
         {
             // Seed roles from configuration
             var roles = configuration.GetSection("Data:Roles").Get<string[]>();
@@ -18,7 +18,7 @@ namespace Final.Identity
                 {
                     if (!await roleManager.RoleExistsAsync(role))
                     {
-                        await roleManager.CreateAsync(new IdentityRole(role));
+                        await roleManager.CreateAsync(new ApplicationRole(role));
                     }
                 }
             }

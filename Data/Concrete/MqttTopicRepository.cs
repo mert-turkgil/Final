@@ -10,6 +10,26 @@ namespace Final.Data.Concrete
         {
         }
 
-        // Add MqttTopic-specific methods here if needed
+        public async Task<IEnumerable<MqttTopic>> GetByCompanyIdAndNoToolAsync(Guid companyId)
+        {
+            return await _dbSet
+                .Where(t => t.CompanyId == companyId && t.MqttToolId == null)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<MqttTopic>> GetTopicsByToolIdAsync(Guid toolId)
+        {
+            return await _dbSet
+                .Where(t => t.MqttToolId == toolId)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<MqttTopic>> GetTopicsByCompanyIdAsync(Guid companyId)
+        {
+            return await _dbSet
+                .Where(t => t.CompanyId == companyId)
+                .ToListAsync();
+        }
+
     }
 }

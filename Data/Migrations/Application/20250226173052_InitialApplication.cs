@@ -56,6 +56,19 @@ namespace Final.Data.Migrations.Application
                 });
 
             migrationBuilder.CreateTable(
+                name: "Company",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    BaseTopic = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Company", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -161,6 +174,84 @@ namespace Final.Data.Migrations.Application
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "CompanyRole",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CompanyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CompanyRole", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CompanyRole_AspNetRoles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "AspNetRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CompanyRole_Company_CompanyId",
+                        column: x => x.CompanyId,
+                        principalTable: "Company",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MqttTool",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ToolBaseTopic = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CompanyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MqttTool", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_MqttTool_Company_CompanyId",
+                        column: x => x.CompanyId,
+                        principalTable: "Company",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MqttTopic",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    BaseTopic = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TopicTemplate = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    HowMany = table.Column<int>(type: "int", nullable: false),
+                    DataType = table.Column<int>(type: "int", nullable: false),
+                    TopicPurpose = table.Column<int>(type: "int", nullable: false),
+                    MqttToolId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    Data64 = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    CompanyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MqttTopic", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_MqttTopic_Company_CompanyId",
+                        column: x => x.CompanyId,
+                        principalTable: "Company",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_MqttTopic_MqttTool_MqttToolId",
+                        column: x => x.MqttToolId,
+                        principalTable: "MqttTool",
+                        principalColumn: "Id");
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -199,6 +290,31 @@ namespace Final.Data.Migrations.Application
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CompanyRole_CompanyId",
+                table: "CompanyRole",
+                column: "CompanyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CompanyRole_RoleId",
+                table: "CompanyRole",
+                column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MqttTool_CompanyId",
+                table: "MqttTool",
+                column: "CompanyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MqttTopic_CompanyId",
+                table: "MqttTopic",
+                column: "CompanyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MqttTopic_MqttToolId",
+                table: "MqttTopic",
+                column: "MqttToolId");
         }
 
         /// <inheritdoc />
@@ -220,10 +336,22 @@ namespace Final.Data.Migrations.Application
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "AspNetRoles");
+                name: "CompanyRole");
+
+            migrationBuilder.DropTable(
+                name: "MqttTopic");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "MqttTool");
+
+            migrationBuilder.DropTable(
+                name: "Company");
         }
     }
 }

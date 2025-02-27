@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Concurrent;
 using System.Text;
 using System.Threading.Tasks;
 using Final.Configuration;
+using Final.Models;
 using Final.Services;
 using Microsoft.Extensions.Options;
 using MQTTnet;
@@ -13,8 +15,8 @@ namespace Final.Services
     public class MqttService : IMqttService
     {
         private readonly IMqttClient _mqttClient;
+        private readonly ConcurrentDictionary<Guid, List<MqttLog>> _logs = new ConcurrentDictionary<Guid, List<MqttLog>>();
         private readonly IMqttClientOptions _mqttOptions;
-
         public event EventHandler<MqttMessageReceivedEventArgs> MessageReceived = delegate { };
 
         public MqttService(IOptions<MqttConfig> config)
@@ -32,11 +34,19 @@ namespace Final.Services
                 .Build();
         }
 
-        public async Task ConnectAsync()
+        public async Task ConnectAsync(CancellationToken cancellationToken = default)
         {
-            if (!_mqttClient.IsConnected)
+            try
             {
-                await _mqttClient.ConnectAsync(_mqttOptions);
+                await _mqttClient.ConnectAsync(_mqttOptions, cancellationToken);
+                Console.WriteLine("Connected to MQTT broker successfully.");
+            }
+            catch (Exception ex)
+            {
+                // Log the error with details
+                Console.WriteLine($"Error connecting to MQTT broker: {ex.Message}");
+                // Optionally, implement retry logic or switch broker here.
+                throw;
             }
         }
 
@@ -100,5 +110,11 @@ namespace Final.Services
             string payload = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
             MessageReceived?.Invoke(this, new MqttMessageReceivedEventArgs(e.ApplicationMessage.Topic, payload));
         }
+        public List<MqttLog> GetAllLogs()
+        {
+            // Aggregate logs from all companies.
+            return _logs.Values.SelectMany(logList => logList).OrderBy(log => log.Timestamp).ToList();
+        }
+
     }
 }

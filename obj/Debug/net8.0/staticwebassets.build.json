@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "4j9/QPu/lMP3KMLT2bYk+uKXV/IOoMhzKe/uWdoUrQY=",
+  "Hash": "jQfMONbJDiNyZOh+iI066B9TcbHOWzS8IaEOlBHkZYQ=",
   "Source": "Final",
   "BasePath": "_content/Final",
   "Mode": "Default",
@@ -1459,6 +1459,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\js\\type-writer.js"
+    },
+    {
+      "Identity": "C:\\Users\\mertu\\Desktop\\Final\\wwwroot\\uploads\\giphy (1).gif",
+      "SourceId": "Final",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\mertu\\Desktop\\Final\\wwwroot\\",
+      "BasePath": "_content/Final",
+      "RelativePath": "uploads/giphy (1).gif",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\giphy (1).gif"
     },
     {
       "Identity": "C:\\Users\\mertu\\Desktop\\Final\\wwwroot\\vid\\background.mp4",

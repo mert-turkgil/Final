@@ -10,5 +10,6 @@ namespace Final.Data.Abstract
         IMqttTopicRepository MqttTopicRepository { get; }
 
         Task SaveChangesAsync();
+        ShopContext Context { get; }
     }
 }

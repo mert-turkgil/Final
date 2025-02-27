@@ -22,13 +22,13 @@ namespace Final.Services
         }
 
         /// <summary>
-        /// Adds a log entry for the given company. The caller provides the company name.
+        /// Adds a log entry for the given company.
         /// </summary>
         public void AddLog(Guid companyId, string companyName, string message)
         {
             var now = DateTime.Now;
             var color = GetColorForCompany(companyName);
-            // Format the log message with the company name in its unique color.
+            // Format the log message with HTML color markup.
             var formattedMessage = $"[>>{now:HH:mm:ss}] [Info] Company <span style=\"color: {color};\">{companyName}</span>: {message}";
             var newLog = new MqttLog { Timestamp = now, Message = formattedMessage };
 
@@ -39,7 +39,7 @@ namespace Final.Services
                     if (existingLogs.Any())
                     {
                         var lastLog = existingLogs.Last();
-                        // If the last log's message is the same and it was added less than 1 minute ago, don't add a new one.
+                        // Avoid duplicate messages within 1 minute.
                         if (lastLog.Message == formattedMessage && (now - lastLog.Timestamp).TotalMinutes < 1)
                         {
                             return existingLogs;
@@ -55,6 +55,13 @@ namespace Final.Services
             return _logs.TryGetValue(companyId, out var logs)
                 ? logs
                 : new List<MqttLog>();
+        }
+
+        public List<MqttLog> GetAllLogs()
+        {
+            return _logs.Values.SelectMany(logList => logList)
+                      .OrderBy(log => log.Timestamp)
+                      .ToList();
         }
     }
 }

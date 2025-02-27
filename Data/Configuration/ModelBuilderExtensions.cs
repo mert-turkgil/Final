@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Final.Entity;
+using Final.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -58,6 +60,7 @@ namespace Final.Data.Configuration
                 {
                     Id = topicCompressorId,
                     MqttToolId = compressorToolId,
+                    CompanyId = companyId,
                     BaseTopic = "ciceklisogukhavadeposu",
                     TopicTemplate = "ciceklisogukhavadeposu/control_room/compressor/status",
                     DataType = TopicDataType.Int64,
@@ -69,15 +72,16 @@ namespace Final.Data.Configuration
             // --------------------------------
             // 5a) Seed Room Status Data (pwr_rqst topics) with unique prefix "AAAAAAA0"
             // --------------------------------
-            var roomStatuData = new List<MqttTopic>();
+            var roomStatusData = new List<MqttTopic>();
             for (int room = 1; room <= 12; room++)
             {
-                string hexRoomString = room.ToString("X12"); // 12-digit hexadecimal string based on the room number
+                string hexRoomString = room.ToString("X12"); // 12-digit hexadecimal string
                 Guid topicId = Guid.Parse($"AAAAAAA0-AAAA-AAAA-AAAA-{hexRoomString}");
-                roomStatuData.Add(new MqttTopic
+                roomStatusData.Add(new MqttTopic
                 {
                     Id = topicId,
                     MqttToolId = controlRoomToolId,
+                    CompanyId = companyId,
                     BaseTopic = "ciceklisogukhavadeposu",
                     TopicTemplate = $"pwr_rqst/room{room}/control_room/ciceklisogukhavadeposu",
                     DataType = TopicDataType.Int64,
@@ -85,7 +89,7 @@ namespace Final.Data.Configuration
                     HowMany = 12
                 });
             }
-            modelBuilder.Entity<MqttTopic>().HasData(roomStatuData.ToArray());
+            modelBuilder.Entity<MqttTopic>().HasData(roomStatusData.ToArray());
 
             // --------------------------------
             // 5b) Seed 12 set_temp/room Topics with unique prefix "BBBBBBBB"
@@ -99,6 +103,7 @@ namespace Final.Data.Configuration
                 {
                     Id = topicId,
                     MqttToolId = controlRoomToolId,
+                    CompanyId = companyId,
                     BaseTopic = "ciceklisogukhavadeposu",
                     TopicTemplate = $"set_temp/room{room}/control_room/ciceklisogukhavadeposu",
                     DataType = TopicDataType.Float,
@@ -120,6 +125,7 @@ namespace Final.Data.Configuration
                 {
                     Id = topicId,
                     MqttToolId = controlRoomToolId,
+                    CompanyId = companyId,
                     BaseTopic = "ciceklisogukhavadeposu",
                     TopicTemplate = $"ciceklisogukhavadeposu/control_room/room{room}/status",
                     DataType = TopicDataType.Float,
@@ -141,6 +147,7 @@ namespace Final.Data.Configuration
                 {
                     Id = topicId,
                     MqttToolId = controlRoomToolId,
+                    CompanyId = companyId,
                     BaseTopic = "ciceklisogukhavadeposu",
                     TopicTemplate = $"ciceklisogukhavadeposu/control_room/room{room}/temp",
                     DataType = TopicDataType.Float,
@@ -154,14 +161,8 @@ namespace Final.Data.Configuration
             // 6) Seed Role for the Company and Bind It
             // --------------------------------
             var roleId = "role-ciceklisogukhavadeposu";
-            modelBuilder.Entity<IdentityRole>().HasData(
-                new IdentityRole
-                {
-                    Id = roleId,
-                    Name = "CiceklisogukhavadeposuRole",
-                    NormalizedName = "CICEKLISOGUKHAVADEPOSUROLE"
-                }
-            );
+            // The role itself should be seeded in ApplicationDbContext or via RoleManager.
+            // Here we seed only the CompanyRole record that references the role.
             modelBuilder.Entity<CompanyRole>().HasData(
                 new CompanyRole
                 {

@@ -31,6 +31,8 @@ namespace Final.Data.Concrete
         {
             await _context.SaveChangesAsync();
         }
+        // Expose the underlying context.
+        public ShopContext Context => _context;
 
         #region IDisposable Implementation
         private bool _disposed = false;

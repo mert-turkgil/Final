@@ -1,6 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Identity;
+using Final.Identity;
 
 namespace Final.Entity
 {
@@ -11,12 +11,12 @@ namespace Final.Entity
         public int Id { get; set; }
 
         public Guid CompanyId { get; set; }
-        public virtual Company Company { get; set; }  // Must be virtual
+        public virtual Company Company { get; set; }
 
         [Required]
         public string RoleId { get; set; }
 
-        // Mark this property as virtual
-        public virtual IdentityRole Role { get; set; }
+        // Navigation property – used by ApplicationDbContext for relationship mapping.
+        public virtual ApplicationRole Role { get; set; }
     }
 }

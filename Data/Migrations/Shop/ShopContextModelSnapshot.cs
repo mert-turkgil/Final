@@ -67,13 +67,11 @@ namespace Final.Data.Migrations.Shop
 
                     b.Property<string>("RoleId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CompanyId");
-
-                    b.HasIndex("RoleId");
 
                     b.ToTable("CompanyRoles");
 
@@ -143,6 +141,9 @@ namespace Final.Data.Migrations.Shop
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<byte[]>("Data64")
                         .HasColumnType("varbinary(max)");
 
@@ -165,6 +166,8 @@ namespace Final.Data.Migrations.Shop
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CompanyId");
+
                     b.HasIndex("MqttToolId");
 
                     b.ToTable("MqttTopics", (string)null);
@@ -174,6 +177,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("66666666-6666-6666-6666-666666666666"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 3,
                             HowMany = 1,
@@ -185,6 +189,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("aaaaaaa0-aaaa-aaaa-aaaa-000000000001"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 3,
                             HowMany = 12,
@@ -196,6 +201,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("aaaaaaa0-aaaa-aaaa-aaaa-000000000002"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 3,
                             HowMany = 12,
@@ -207,6 +213,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("aaaaaaa0-aaaa-aaaa-aaaa-000000000003"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 3,
                             HowMany = 12,
@@ -218,6 +225,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("aaaaaaa0-aaaa-aaaa-aaaa-000000000004"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 3,
                             HowMany = 12,
@@ -229,6 +237,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("aaaaaaa0-aaaa-aaaa-aaaa-000000000005"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 3,
                             HowMany = 12,
@@ -240,6 +249,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("aaaaaaa0-aaaa-aaaa-aaaa-000000000006"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 3,
                             HowMany = 12,
@@ -251,6 +261,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("aaaaaaa0-aaaa-aaaa-aaaa-000000000007"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 3,
                             HowMany = 12,
@@ -262,6 +273,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("aaaaaaa0-aaaa-aaaa-aaaa-000000000008"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 3,
                             HowMany = 12,
@@ -273,6 +285,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("aaaaaaa0-aaaa-aaaa-aaaa-000000000009"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 3,
                             HowMany = 12,
@@ -284,6 +297,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("aaaaaaa0-aaaa-aaaa-aaaa-00000000000a"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 3,
                             HowMany = 12,
@@ -295,6 +309,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("aaaaaaa0-aaaa-aaaa-aaaa-00000000000b"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 3,
                             HowMany = 12,
@@ -306,6 +321,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("aaaaaaa0-aaaa-aaaa-aaaa-00000000000c"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 3,
                             HowMany = 12,
@@ -317,6 +333,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-000000000001"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 12,
@@ -328,6 +345,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-000000000002"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 12,
@@ -339,6 +357,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-000000000003"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 12,
@@ -350,6 +369,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-000000000004"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 12,
@@ -361,6 +381,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-000000000005"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 12,
@@ -372,6 +393,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-000000000006"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 12,
@@ -383,6 +405,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-000000000007"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 12,
@@ -394,6 +417,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-000000000008"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 12,
@@ -405,6 +429,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-000000000009"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 12,
@@ -416,6 +441,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-00000000000a"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 12,
@@ -427,6 +453,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-00000000000b"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 12,
@@ -438,6 +465,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-00000000000c"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 12,
@@ -449,6 +477,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("cccccccc-cccc-cccc-cccc-000000000001"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 12,
@@ -460,6 +489,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("cccccccc-cccc-cccc-cccc-000000000002"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 12,
@@ -471,6 +501,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("cccccccc-cccc-cccc-cccc-000000000003"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 12,
@@ -482,6 +513,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("cccccccc-cccc-cccc-cccc-000000000004"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 12,
@@ -493,6 +525,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("cccccccc-cccc-cccc-cccc-000000000005"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 12,
@@ -504,6 +537,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("cccccccc-cccc-cccc-cccc-000000000006"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 12,
@@ -515,6 +549,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("cccccccc-cccc-cccc-cccc-000000000007"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 12,
@@ -526,6 +561,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("cccccccc-cccc-cccc-cccc-000000000008"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 12,
@@ -537,6 +573,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("cccccccc-cccc-cccc-cccc-000000000009"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 12,
@@ -548,6 +585,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("cccccccc-cccc-cccc-cccc-00000000000a"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 12,
@@ -559,6 +597,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("cccccccc-cccc-cccc-cccc-00000000000b"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 12,
@@ -570,6 +609,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("cccccccc-cccc-cccc-cccc-00000000000c"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 12,
@@ -581,6 +621,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000001"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 1,
@@ -592,6 +633,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000002"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 1,
@@ -603,6 +645,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000003"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 1,
@@ -614,6 +657,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000004"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 1,
@@ -625,6 +669,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000005"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 1,
@@ -636,6 +681,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000006"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 1,
@@ -647,6 +693,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000007"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 1,
@@ -658,6 +705,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000008"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 1,
@@ -669,6 +717,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000009"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 1,
@@ -680,6 +729,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("00000000-0000-0000-0000-00000000000a"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 1,
@@ -691,6 +741,7 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("00000000-0000-0000-0000-00000000000b"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 1,
@@ -702,39 +753,13 @@ namespace Final.Data.Migrations.Shop
                         {
                             Id = new Guid("00000000-0000-0000-0000-00000000000c"),
                             BaseTopic = "ciceklisogukhavadeposu",
+                            CompanyId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Data64 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                             DataType = 8,
                             HowMany = 1,
                             MqttToolId = new Guid("22222222-2222-2222-2222-222222222222"),
                             TopicPurpose = 0,
                             TopicTemplate = "ciceklisogukhavadeposu/control_room/room12/temp"
-                        });
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NormalizedName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("IdentityRole");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "role-ciceklisogukhavadeposu",
-                            Name = "CiceklisogukhavadeposuRole",
-                            NormalizedName = "CICEKLISOGUKHAVADEPOSUROLE"
                         });
                 });
 
@@ -746,15 +771,7 @@ namespace Final.Data.Migrations.Shop
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", "Role")
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Company");
-
-                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("Final.Entity.MqttTool", b =>
@@ -770,10 +787,18 @@ namespace Final.Data.Migrations.Shop
 
             modelBuilder.Entity("Final.Entity.MqttTopic", b =>
                 {
+                    b.HasOne("Final.Entity.Company", "Company")
+                        .WithMany("Topics")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Final.Entity.MqttTool", "MqttTool")
                         .WithMany("Topics")
                         .HasForeignKey("MqttToolId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Company");
 
                     b.Navigation("MqttTool");
                 });
@@ -783,6 +808,8 @@ namespace Final.Data.Migrations.Shop
                     b.Navigation("CompanyRoles");
 
                     b.Navigation("Tools");
+
+                    b.Navigation("Topics");
                 });
 
             modelBuilder.Entity("Final.Entity.MqttTool", b =>

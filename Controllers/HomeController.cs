@@ -16,22 +16,28 @@ namespace Final.Controllers;
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
+    private readonly ICompanyRepository _companyRepository;
     private readonly UserManager<User> _userManager;
     private readonly SignInManager<User> _signInManager;
-    private readonly RoleManager<IdentityRole> _roleManager;
-
+    private readonly RoleManager<ApplicationRole> _roleManager;
+    private readonly IWebHostEnvironment _hostingEnvironment; 
     private readonly IShopUnitOfWork _unitOfWork;
 
     public HomeController(ILogger<HomeController> logger,
+
     UserManager<User> userManager, 
     SignInManager<User> signInManager,
-    RoleManager<IdentityRole> roleManager,
-    IShopUnitOfWork unitOfWork)
+    RoleManager<ApplicationRole> roleManager,
+    IShopUnitOfWork unitOfWork,
+    ICompanyRepository companyRepository,
+    IWebHostEnvironment hostingEnvironment)
     {
+        _hostingEnvironment = hostingEnvironment;
         _roleManager = roleManager;
         _userManager = userManager;
         _signInManager = signInManager;
         _logger = logger;
+        _companyRepository = companyRepository;
         _unitOfWork = unitOfWork;
     }
         #region Login - Logout
@@ -112,58 +118,63 @@ public class HomeController : Controller
         }
         #endregion
         #region Odalar ve Yönetim kısmı
-    [HttpGet]
-    public async Task<IActionResult> Account()
-    {
-        // Get the currently logged-in user.
-        var currentUser = await _userManager.GetUserAsync(User);
-        if (currentUser == null)
+        [HttpGet]
+        public async Task<IActionResult> Account()
         {
-            return RedirectToAction("Index");
-        }
-        
-        // Retrieve companies (with related tools and topics).
-        var companies = await _unitOfWork.CompanyRepository.GetAllAsync();
-
-        // Map companies into CompanyDto, including RoleIds from the CompanyRoles join.
-        var companyDtos = companies.Select(c => new CompanyDto
-        {
-            Id = c.Id,
-            Name = c.Name,
-            BaseTopic = c.BaseTopic,
-            Tools = c.Tools.Select(t => new ToolDto
+            // Get the currently logged-in user.
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
             {
-                Id = t.Id,
-                Name = t.Name,
-                Description = t.Description,
-                Topics = t.Topics.Select(topic => new TopicDto
+                return RedirectToAction("Index"); 
+            }
+            
+            // Retrieve companies with their topics, tools, and tool topics.
+            // IMPORTANT: Call GetAllWithToolsAndTopicsAsync() (not GetAllTopicsAsync)
+            var companies = await _companyRepository.GetAllWithToolsAndTopicsAsync(); 
+
+            // Map companies into CompanyDto.
+            var companyDtos = companies.Select(c => new CompanyDto
+            {
+                Id = c.Id,
+                Name = c.Name,
+                BaseTopic = c.BaseTopic,
+                Tools = c.Tools.Select(t => new ToolDto
                 {
-                    Id = topic.Id,
-                    BaseTopic = topic.BaseTopic,
-                    TopicTemplate = topic.TopicTemplate,
-                    HowMany = topic.HowMany,
-                    DataType = topic.DataType.ToString()
-                }).ToList()
-            }).ToList(),
-            RoleIds = c.CompanyRoles.Select(cr => cr.RoleId).ToList()
-        }).ToList();
+                    Id = t.Id,
+                    Name = t.Name,
+                    Description = t.Description,
+                    Topics = t.Topics.Select(topic => new TopicDto
+                    {
+                        Id = topic.Id,
+                        BaseTopic = topic.BaseTopic,
+                        TopicTemplate = topic.TopicTemplate,
+                        HowMany = topic.HowMany,
+                        DataType = topic.DataType.ToString()
+                    }).ToList()
+                }).ToList(),
+                RoleIds = c.CompanyRoles.Select(cr => cr.RoleId).ToList()
+            }).ToList();
 
-        // Retrieve all available roles.
-        var roles = _roleManager.Roles.ToList();
 
-        // Build the user view model.
-        var userViewModel = new UserViewModel
-        {
-            Id = currentUser.Id,
-            UserName = currentUser.UserName,
-            FirstName = currentUser.Name,
-            LastName = currentUser.LastName,
-            Companies = companyDtos,
-            Roles = roles
-        };
+            // Retrieve all available roles.
+            var roles = _roleManager.Roles.ToList();
 
-        return View(userViewModel);
-    }
+            // Build the user view model.
+            var userViewModel = new UserViewModel
+            {
+                Id = currentUser.Id,
+                UserName = currentUser.UserName,
+                FirstName = currentUser.Name,
+                LastName = currentUser.LastName,
+                Companies = companyDtos,
+                Roles = roles
+            };
+
+            return View(userViewModel);
+        }
+
+
+
         #endregion
         public IActionResult Privacy()
         {
@@ -178,17 +189,16 @@ public class HomeController : Controller
                 RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier 
             });
         }
-        #region SetLanguage
-        public IActionResult SetLanguage(string culture, string returnUrl)
-        {
-            Response.Cookies.Append(
-                CookieRequestCultureProvider.DefaultCookieName,
-                CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)),
-                new CookieOptions { Expires = DateTimeOffset.UtcNow.AddYears(1) }
-            );
-            return Redirect(Request.Headers["Referer"].ToString());
-        }
-
+    #region SetLanguage
+    public IActionResult SetLanguage(string culture, string returnUrl)
+    {
+        Response.Cookies.Append(
+            CookieRequestCultureProvider.DefaultCookieName,
+            CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)),
+            new CookieOptions { Expires = DateTimeOffset.UtcNow.AddYears(1) }
+        );
+        return Redirect(Request.Headers["Referer"].ToString());
+    }
     #endregion
     #region User
 
@@ -456,94 +466,63 @@ public class HomeController : Controller
     }
 
     #endregion
+    #region Role Management Endpoints
 
-    #region Roles
     // GET: Display the role creation form.
     [HttpGet]
-    [Authorize(Roles = "Admin,Root")]
     public async Task<IActionResult> RoleCreate()
     {
-        var companies = await _unitOfWork.CompanyRepository.GetAllAsync();
-        var users = await _userManager.Users.ToListAsync();
-
-        var model = new Final.Models.RoleCreateViewModel
-        {
-            Companies = companies.Select(c => new SelectListItem 
-            { 
-                Value = c.Id.ToString(), 
-                Text = c.Name 
-            }).ToList(),
-            Users = users.Select(u => new SelectListItem 
-            { 
-                Value = u.Id, 
-                Text = u.UserName 
-            }).ToList()
-        };
+        var model = new RoleCreateViewModel();
+        await PopulateRoleCreateViewModelAsync(model);
         return View(model);
     }
 
-    // POST: Process the role creation.
+    // POST: Process role creation.
     [HttpPost]
-    [Authorize(Roles = "Admin,Root")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> RoleCreate(Final.Models.RoleCreateViewModel model)
+    public async Task<IActionResult> RoleCreate(RoleCreateViewModel model)
     {
         if (!ModelState.IsValid)
         {
-            // Repopulate the lists and return the view.
-            var companies = await _unitOfWork.CompanyRepository.GetAllAsync();
-            var users = await _userManager.Users.ToListAsync();
-
-            model.Companies = companies.Select(c => new SelectListItem 
-            { 
-                Value = c.Id.ToString(), 
-                Text = c.Name 
-            }).ToList();
-            model.Users = users.Select(u => new SelectListItem 
-            { 
-                Value = u.Id, 
-                Text = u.UserName 
-            }).ToList();
+            await PopulateRoleCreateViewModelAsync(model);
             return View(model);
         }
 
-        // Create a new role.
-        var role = new IdentityRole(model.RoleName);
+        // Create the new role using your custom ApplicationRole.
+        var role = new ApplicationRole(model.RoleName);
         var result = await _roleManager.CreateAsync(role);
         if (!result.Succeeded)
         {
             foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError("", error.Description);
-            }
-            // Repopulate and return.
-            var companies = await _unitOfWork.CompanyRepository.GetAllAsync();
-            var users = await _userManager.Users.ToListAsync();
-            model.Companies = companies.Select(c => new SelectListItem 
-            { 
-                Value = c.Id.ToString(), 
-                Text = c.Name 
-            }).ToList();
-            model.Users = users.Select(u => new SelectListItem 
-            { 
-                Value = u.Id, 
-                Text = u.UserName 
-            }).ToList();
+                ModelState.AddModelError(string.Empty, error.Description);
+            await PopulateRoleCreateViewModelAsync(model);
             return View(model);
         }
 
-        // Bind the role with a company.
-        var company = await _unitOfWork.CompanyRepository.GetByIdAsync(model.CompanyId);
-        if (company != null)
+        // Reload the role and cast it.
+        var reloadedRole = await _roleManager.FindByIdAsync(role.Id);
+        if (reloadedRole == null)
         {
-            company.CompanyRoles.Add(new CompanyRole 
-            { 
-                CompanyId = company.Id, 
-                RoleId = role.Id 
-            });
-            await _unitOfWork.CompanyRepository.UpdateAsync(company);
-            await _unitOfWork.SaveChangesAsync();
+            ModelState.AddModelError(string.Empty, "Role could not be reloaded after creation.");
+            await PopulateRoleCreateViewModelAsync(model);
+            return View(model);
         }
+        var appRole = (ApplicationRole)reloadedRole;
+        var roleId = appRole.Id;
+
+        // Bind the role with the selected company.
+        var company = await _unitOfWork.CompanyRepository.GetByIdAsync(model.CompanyId);
+        if (company == null)
+        {
+            _logger.LogError("Company with ID {CompanyId} not found while binding role {RoleName}. Deleting the created role.", model.CompanyId, model.RoleName);
+            await _roleManager.DeleteAsync(appRole);
+            ModelState.AddModelError(string.Empty, "The selected company was not found. Role creation aborted.");
+            await PopulateRoleCreateViewModelAsync(model);
+            return View(model);
+        }
+        company.CompanyRoles.Add(new CompanyRole { CompanyId = company.Id, RoleId = roleId });
+        await _unitOfWork.CompanyRepository.UpdateAsync(company);
+        await _unitOfWork.SaveChangesAsync();
 
         // Bind selected users to the role.
         if (model.SelectedUserIds != null)
@@ -552,9 +531,7 @@ public class HomeController : Controller
             {
                 var user = await _userManager.FindByIdAsync(userId);
                 if (user != null)
-                {
                     await _userManager.AddToRoleAsync(user, model.RoleName);
-                }
             }
         }
 
@@ -564,7 +541,6 @@ public class HomeController : Controller
 
     // GET: Display the role editing form.
     [HttpGet]
-    [Authorize(Roles = "Admin,Root")]
     public async Task<IActionResult> RoleEdit(string id)
     {
         var role = await _roleManager.FindByIdAsync(id);
@@ -574,24 +550,21 @@ public class HomeController : Controller
             return RedirectToAction("Account");
         }
 
-        // Determine which company is bound to this role.
+        // Find the company bound to this role.
         var companies = await _unitOfWork.CompanyRepository.GetAllAsync();
-        Guid companyId = Guid.Empty;
-        foreach (var comp in companies)
-        {
-            var compRole = comp.CompanyRoles.FirstOrDefault(cr => cr.RoleId == role.Id);
-            if (compRole != null)
-            {
-                companyId = comp.Id;
-                break;
-            }
-        }
+        var boundCompany = companies.FirstOrDefault(c => c.CompanyRoles.Any(cr => cr.RoleId == role.Id));
+        Guid companyId = boundCompany?.Id ?? Guid.Empty;
 
         // Retrieve users currently in the role.
-        var usersInRole = await _userManager.GetUsersInRoleAsync(role.Name!);
+        if (string.IsNullOrEmpty(role.Name))
+        {
+            TempData["ErrorMessage"] = "Role name is invalid.";
+            return RedirectToAction("Account");
+        }
+        var usersInRole = await _userManager.GetUsersInRoleAsync(role.Name);
         var allUsers = await _userManager.Users.ToListAsync();
 
-        var model = new Final.Models.RoleEditViewModel
+        var model = new RoleEditViewModel
         {
             Id = role.Id,
             RoleName = role.Name,
@@ -614,24 +587,12 @@ public class HomeController : Controller
 
     // POST: Process the role edit.
     [HttpPost]
-    [Authorize(Roles = "Admin,Root")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> RoleEdit(Final.Models.RoleEditViewModel model)
+    public async Task<IActionResult> RoleEdit(RoleEditViewModel model)
     {
         if (!ModelState.IsValid)
         {
-            var companies = await _unitOfWork.CompanyRepository.GetAllAsync();
-            var users = await _userManager.Users.ToListAsync();
-            model.Companies = companies.Select(c => new SelectListItem 
-            { 
-                Value = c.Id.ToString(), 
-                Text = c.Name 
-            }).ToList();
-            model.Users = users.Select(u => new SelectListItem 
-            { 
-                Value = u.Id, 
-                Text = u.UserName 
-            }).ToList();
+            await PopulateRoleEditViewModelAsync(model);
             return View(model);
         }
 
@@ -641,8 +602,6 @@ public class HomeController : Controller
             TempData["ErrorMessage"] = "Role not found.";
             return RedirectToAction("Account");
         }
-
-        // Ensure role name is valid.
         if (string.IsNullOrWhiteSpace(role.Name))
         {
             TempData["ErrorMessage"] = "Invalid role name.";
@@ -658,15 +617,12 @@ public class HomeController : Controller
         }
 
         // Restrict editing of the Root role.
-        if (role.Name.Equals("Root", StringComparison.OrdinalIgnoreCase))
-        {
-            // Only a user with the Root identity can edit the Root role.
-            if (!(currentUser.Name.Equals("Root", StringComparison.OrdinalIgnoreCase) &&
+        if (role.Name.Equals("Root", StringComparison.OrdinalIgnoreCase) &&
+            !(currentUser.Name.Equals("Root", StringComparison.OrdinalIgnoreCase) &&
                 currentUser.LastName.Equals("Türkgil", StringComparison.OrdinalIgnoreCase)))
-            {
-                TempData["ErrorMessage"] = "Only the Root user can edit the Root role.";
-                return RedirectToAction("Account");
-            }
+        {
+            TempData["ErrorMessage"] = "Only the Root user can edit the Root role.";
+            return RedirectToAction("Account");
         }
 
         // Restrict editing of the Admin role.
@@ -690,26 +646,13 @@ public class HomeController : Controller
             if (!updateResult.Succeeded)
             {
                 foreach (var error in updateResult.Errors)
-                {
-                    ModelState.AddModelError("", error.Description);
-                }
-                var companies = await _unitOfWork.CompanyRepository.GetAllAsync();
-                var users = await _userManager.Users.ToListAsync();
-                model.Companies = companies.Select(c => new SelectListItem 
-                { 
-                    Value = c.Id.ToString(), 
-                    Text = c.Name 
-                }).ToList();
-                model.Users = users.Select(u => new SelectListItem 
-                { 
-                    Value = u.Id, 
-                    Text = u.UserName 
-                }).ToList();
+                    ModelState.AddModelError(string.Empty, error.Description);
+                await PopulateRoleEditViewModelAsync(model);
                 return View(model);
             }
         }
 
-        // Update company binding: Remove old binding and add new if necessary.
+        // Update company binding.
         var allCompanies = await _unitOfWork.CompanyRepository.GetAllAsync();
         foreach (var comp in allCompanies)
         {
@@ -728,27 +671,21 @@ public class HomeController : Controller
         }
         await _unitOfWork.SaveChangesAsync();
 
-        // Update user assignments:
-        // Remove all current users from this role.
-        var roleName = role.Name; // Already verified to be non-null.
-        var currentUsers = await _userManager.GetUsersInRoleAsync(roleName);
-        foreach (var user in currentUsers)
-        {
+        // Update user assignments.
+        var roleName = role.Name;
+        var currentUsersInRole = await _userManager.GetUsersInRoleAsync(roleName);
+        foreach (var user in currentUsersInRole)
             await _userManager.RemoveFromRoleAsync(user, roleName);
-        }
-        // Add selected users to the role, if any.
+
         if (model.SelectedUserIds != null && model.SelectedUserIds.Any())
         {
             foreach (var userId in model.SelectedUserIds)
             {
                 var user = await _userManager.FindByIdAsync(userId);
                 if (user != null)
-                {
                     await _userManager.AddToRoleAsync(user, roleName);
-                }
             }
         }
-        // If SelectedUserIds is null or empty, that's acceptable – the role will have no users.
 
         TempData["SuccessMessage"] = "Role updated successfully!";
         return RedirectToAction("Account");
@@ -756,7 +693,6 @@ public class HomeController : Controller
 
     // POST: Delete a role.
     [HttpPost]
-    [Authorize(Roles = "Admin,Root")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> RoleDelete(string id)
     {
@@ -774,15 +710,11 @@ public class HomeController : Controller
             return RedirectToAction("Account");
         }
 
-        // Guard against null by using role.Name after checking.
-        var roleName = role.Name!; // Now safe to assume non-null.
-
         // Remove the role from all users.
+        var roleName = role.Name;
         var usersInRole = await _userManager.GetUsersInRoleAsync(roleName);
         foreach (var user in usersInRole)
-        {
             await _userManager.RemoveFromRoleAsync(user, roleName);
-        }
 
         // Remove any company binding.
         var companies = await _unitOfWork.CompanyRepository.GetAllAsync();
@@ -797,22 +729,53 @@ public class HomeController : Controller
         }
         await _unitOfWork.SaveChangesAsync();
 
-        // Delete the role.
-        var result = await _roleManager.DeleteAsync(role);
-        if (!result.Succeeded)
-        {
+        var deleteResult = await _roleManager.DeleteAsync(role);
+        if (!deleteResult.Succeeded)
             TempData["ErrorMessage"] = "Error occurred while deleting the role.";
-        }
         else
-        {
             TempData["SuccessMessage"] = "Role deleted successfully!";
-        }
+
         return RedirectToAction("Account");
     }
 
+    #region Helper Methods
+
+    private async Task PopulateRoleCreateViewModelAsync(RoleCreateViewModel model)
+    {
+        var companies = await _unitOfWork.CompanyRepository.GetAllAsync();
+        model.Companies = companies.Select(c => new SelectListItem
+        {
+            Value = c.Id.ToString(),
+            Text = c.Name
+        }).ToList();
+
+        var users = await _userManager.Users.ToListAsync();
+        model.Users = users.Select(u => new SelectListItem
+        {
+            Value = u.Id,
+            Text = u.UserName
+        }).ToList();
+    }
+
+    private async Task PopulateRoleEditViewModelAsync(RoleEditViewModel model)
+    {
+        var companies = await _unitOfWork.CompanyRepository.GetAllAsync();
+        model.Companies = companies.Select(c => new SelectListItem
+        {
+            Value = c.Id.ToString(),
+            Text = c.Name
+        }).ToList();
+
+        var users = await _userManager.Users.ToListAsync();
+        model.Users = users.Select(u => new SelectListItem
+        {
+            Value = u.Id,
+            Text = u.UserName
+        }).ToList();
+    }
 
     #endregion
-
+    #endregion
     #region Company
     // GET: Render the company creation view.
     [HttpGet]
@@ -833,7 +796,7 @@ public class HomeController : Controller
             return View(model);
         }
 
-        // Create the Company entity.
+        // 1. Create the Company entity.
         var company = new Company
         {
             Id = Guid.NewGuid(),
@@ -841,79 +804,346 @@ public class HomeController : Controller
             BaseTopic = model.BaseTopic
         };
 
-        // Create Company-level Subscription Topics.
-        for (int i = 1; i <= model.HowMany; i++)
+        // Process Company Topic Templates.
+        if (model.CompanyTopicTemplates != null)
         {
-            var subTopic = new MqttTopic
+            foreach (var ct in model.CompanyTopicTemplates)
             {
-                Id = Guid.NewGuid(),
-                BaseTopic = company.BaseTopic,
-                // Example pattern: {BaseTopic}/{TopicTemplate}/{TopicTemplate}/{TopicTemplate}{i}/{TopicTemplate}
-                TopicTemplate = $"{model.TopicTemplate}/{model.TopicTemplate}/{model.TopicTemplate}{i}/{model.TopicTemplate}",
-                HowMany = 1,
-                DataType = model.DataType,
-                MqttToolId = null  // Company-level topic.
-            };
-            await _unitOfWork.MqttTopicRepository.AddAsync(subTopic);
-        }
-
-        // Create Company-level Sending Topics (flexible, based on the sending topics submitted).
-        if(model.SendingTopics != null)
-        {
-            foreach (var sending in model.SendingTopics)
-            {
-                for (int i = 1; i <= sending.HowMany; i++)
-                {
-                    var sendTopic = new MqttTopic
-                    {
-                        Id = Guid.NewGuid(),
-                        BaseTopic = company.BaseTopic,
-                        // Here you can decide on a pattern. For example:
-                        TopicTemplate = $"{sending.TopicTemplate}{i}",
-                        HowMany = 1,
-                        DataType = sending.DataType,
-                        MqttToolId = null  // Company-level sending topic.
-                    };
-                    await _unitOfWork.MqttTopicRepository.AddAsync(sendTopic);
-                }
+                await GenerateTopicsAsync(
+                    company.BaseTopic,
+                    ct.Template,  // Ensure the template uses "{seq}"
+                    ct.HowMany,
+                    ct.DataType,
+                    ct.TopicPurpose,
+                    mqttToolId: null,
+                    companyId: company.Id);
             }
         }
 
-        // Process Tools (similar to previous logic; create MqttTool entities with their own topics).
-        // For brevity, assuming one default tool is created as an example.
-        var mqttTool = new MqttTool
+        // Process Tools.
+        if (model.Tools != null)
         {
-            Id = Guid.NewGuid(),
-            Name = model.ToolName,
-            ToolBaseTopic = model.ToolBaseTopic,
-            Description = model.Description,
-            ImageUrl = model.ImageUrl,
-            CompanyId = company.Id,
-            Company = company
-        };
+            foreach (var toolModel in model.Tools)
+            {
+                var tool = new MqttTool
+                {
+                    Id = Guid.NewGuid(),
+                    Name = toolModel.ToolName,
+                    ToolBaseTopic = toolModel.ToolBaseTopic,
+                    Description = toolModel.Description,
+                    CompanyId = company.Id,
+                    Company = company
+                };
 
-        var toolTopic = new MqttTopic
-        {
-            Id = Guid.NewGuid(),
-            BaseTopic = company.BaseTopic,
-            TopicTemplate = $"{model.TopicTemplate}1/status", // Modify as needed.
-            HowMany = 1,
-            DataType = model.DataType,
-            MqttToolId = mqttTool.Id,
-            MqttTool = mqttTool
-        };
-        mqttTool.Topics.Add(toolTopic);
-        company.Tools.Add(mqttTool);
+                // Process uploaded image file if provided.
+                if (toolModel.ImageFile != null && toolModel.ImageFile.Length > 0)
+                {
+                    // Example: save the file to wwwroot/uploads and assign the URL.
+                    var fileName = Path.GetFileName(toolModel.ImageFile.FileName);
+                    var uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "uploads");
+                    if (!Directory.Exists(uploadsFolder))
+                    {
+                        Directory.CreateDirectory(uploadsFolder);
+                    }
+                    var filePath = Path.Combine(uploadsFolder, fileName);
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await toolModel.ImageFile.CopyToAsync(stream);
+                    }
+                    tool.ImageUrl = "/uploads/" + fileName;
+                }
+                else
+                {
+                    // Optionally use any existing URL from a text field fallback.
+                    tool.ImageUrl = toolModel.ImageUrl;
+                }
 
+                if (toolModel.TopicTemplates != null)
+                {
+                    foreach (var tt in toolModel.TopicTemplates)
+                    {
+                        await GenerateTopicsAsync(
+                            company.BaseTopic,
+                            tt.Template,  // Ensure template includes "{seq}"
+                            tt.HowMany,
+                            tt.DataType,
+                            tt.TopicPurpose,
+                            mqttToolId: tool.Id,
+                            companyId: company.Id,
+                            tool: tool);
+                    }
+                }
+                company.Tools.Add(tool);
+                await _unitOfWork.MqttToolRepository.AddAsync(tool);
+            }
+        }
+
+        // Save the company (and its related topics and tools) to the database.
         await _unitOfWork.CompanyRepository.AddAsync(company);
-        await _unitOfWork.MqttToolRepository.AddAsync(mqttTool);
         await _unitOfWork.SaveChangesAsync();
 
         TempData["SuccessMessage"] = "Company created successfully!";
         return RedirectToAction("Account");
     }
 
+    #region helpermethod
+    private async Task GenerateTopicsAsync(
+        string baseTopic,
+        string template,
+        int count,
+        TopicDataType dataType,
+        TopicPurpose topicPurpose,
+        Guid? companyId = null,
+        Guid? mqttToolId = null,
+        MqttTool? tool = null)
+    {
+        for (int i = 1; i <= count; i++)
+        {
+            // Replace the "{seq}" placeholder with the sequence number.
+            var finalTemplate = template.Replace("{seq}", i.ToString());
+            var topic = new MqttTopic
+            {
+                Id = Guid.NewGuid(),
+                BaseTopic = baseTopic,
+                TopicTemplate = finalTemplate,
+                HowMany = 1, // Each generated topic represents a single entry.
+                DataType = dataType,
+                TopicPurpose = topicPurpose,
+                MqttToolId = mqttToolId,
+                CompanyId = companyId ?? throw new ArgumentNullException(nameof(companyId))
+            };
+
+            if (tool != null)
+            {
+                topic.MqttTool = tool;
+                tool.Topics.Add(topic);
+            }
+            await _unitOfWork.MqttTopicRepository.AddAsync(topic);
+        }
+    }
+    #endregion
 
 
+    #region EditCompany
+    [HttpGet]
+    [Authorize(Roles = "Admin,Root")]
+    public async Task<IActionResult> EditCompany(Guid id)
+    {
+        // Load the company with its tools and their topics.
+        var company = await _unitOfWork.CompanyRepository.GetByIdWithToolsAsync(id);
+        if (company == null)
+        {
+            return NotFound();
+        }
+
+        // Retrieve company-level topics (those with no tool assigned)
+        var companyTopics = await _unitOfWork.MqttTopicRepository.GetByCompanyIdAndNoToolAsync(company.Id);
+
+        // Map the company to the edit view model.
+        var model = new CompanyEditViewModel
+        {
+            Id = company.Id,
+            Name = company.Name,
+            BaseTopic = company.BaseTopic,
+            CompanyTopicTemplates = companyTopics.Select(topic => new EditCompanyTopicTemplateViewModel
+            {
+                Template = topic.TopicTemplate,
+                HowMany = topic.HowMany,
+                DataType = topic.DataType,
+                TopicPurpose = topic.TopicPurpose
+            }).ToList(),
+            Tools = company.Tools.Select(t => new ToolEditViewModel
+            {
+                Id = t.Id,
+                ToolName = t.Name,
+                ToolBaseTopic = t.ToolBaseTopic,
+                Description = t.Description,
+                ImageUrl = t.ImageUrl,
+                TopicTemplates = t.Topics.Select(tt => new EditToolTopicTemplateViewModel
+                {
+                    Template = tt.TopicTemplate,
+                    HowMany = tt.HowMany,
+                    DataType = tt.DataType,
+                    TopicPurpose = tt.TopicPurpose
+                }).ToList()
+            }).ToList()
+        };
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "Admin,Root")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> EditCompany(CompanyEditViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        // Load existing company (including its tools).
+        var company = await _unitOfWork.CompanyRepository.GetByIdWithToolsAsync(model.Id);
+        if (company == null)
+        {
+            return NotFound();
+        }
+
+        // Update basic company fields.
+        company.Name = model.Name;
+        company.BaseTopic = model.BaseTopic;
+
+        // --- Update Company-Level Topics ---
+        // Delete existing company-level topics.
+        var existingCompanyTopics = await _unitOfWork.MqttTopicRepository.GetByCompanyIdAndNoToolAsync(company.Id);
+        foreach (var topic in existingCompanyTopics)
+        {
+            await _unitOfWork.MqttTopicRepository.DeleteAsync(topic);
+        }
+        // Recreate topics from the view model.
+        if (model.CompanyTopicTemplates != null)
+        {
+            foreach (var ct in model.CompanyTopicTemplates)
+            {
+                await GenerateTopicsAsync(
+                    company.BaseTopic,
+                    ct.Template,
+                    ct.HowMany,
+                    ct.DataType,
+                    ct.TopicPurpose,
+                    mqttToolId: null,
+                    companyId: company.Id);
+            }
+        }
+
+        // --- Update Tools and Their Topics ---
+        // For simplicity, remove all existing tools (and their topics) and rebuild from the view model.
+        foreach (var tool in company.Tools.ToList())
+        {
+            if (tool.Topics != null)
+            {
+                foreach (var topic in tool.Topics.ToList())
+                {
+                    await _unitOfWork.MqttTopicRepository.DeleteAsync(topic);
+                }
+            }
+            await _unitOfWork.MqttToolRepository.DeleteAsync(tool);
+        }
+        company.Tools.Clear();
+
+        if (model.Tools != null)
+        {
+            foreach (var toolModel in model.Tools)
+            {
+                var tool = new MqttTool
+                {
+                    // Reuse the existing Id if available; otherwise, assign a new one.
+                    Id = toolModel.Id != Guid.Empty ? toolModel.Id : Guid.NewGuid(),
+                    Name = toolModel.ToolName,
+                    ToolBaseTopic = toolModel.ToolBaseTopic,
+                    Description = toolModel.Description,
+                    CompanyId = company.Id
+                };
+
+                // Process uploaded image file if provided.
+                if (toolModel.ImageFile != null && toolModel.ImageFile.Length > 0)
+                {
+                    var fileName = Path.GetFileName(toolModel.ImageFile.FileName);
+                    var uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "uploads");
+                    if (!Directory.Exists(uploadsFolder))
+                    {
+                        Directory.CreateDirectory(uploadsFolder);
+                    }
+                    var filePath = Path.Combine(uploadsFolder, fileName);
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await toolModel.ImageFile.CopyToAsync(stream);
+                    }
+                    tool.ImageUrl = "/uploads/" + fileName;
+                }
+                else
+                {
+                    // If no new file is uploaded, keep the existing image URL.
+                    tool.ImageUrl = toolModel.ImageUrl;
+                }
+
+                // Process topic templates for the tool.
+                if (toolModel.TopicTemplates != null)
+                {
+                    foreach (var tt in toolModel.TopicTemplates)
+                    {
+                        await GenerateTopicsAsync(
+                            company.BaseTopic,
+                            tt.Template,
+                            tt.HowMany,
+                            tt.DataType,
+                            tt.TopicPurpose,
+                            mqttToolId: tool.Id,
+                            companyId: company.Id,
+                            tool: tool);
+                    }
+                }
+                company.Tools.Add(tool);
+                await _unitOfWork.MqttToolRepository.AddAsync(tool);
+            }
+        }
+
+        await _unitOfWork.CompanyRepository.UpdateAsync(company);
+        await _unitOfWork.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = "Company updated successfully!";
+        return RedirectToAction("Account", "Home");
+    }
+
+
+
+
+
+    #endregion
+    [HttpPost]
+    [Authorize(Roles = "Admin,Root")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteCompany(Guid id)
+    {
+        // Retrieve the company with its related tools and topics.
+        var company = await _unitOfWork.CompanyRepository.GetByIdWithToolsAsync(id);
+        if (company == null)
+        {
+            return NotFound();
+        }
+
+        // Iterate over each tool in the company.
+        foreach (var tool in company.Tools.ToList())
+        {
+            // If an image URL exists, delete the physical file.
+            if (!string.IsNullOrEmpty(tool.ImageUrl))
+            {
+                // Remove any leading '/' and combine with the wwwroot path.
+                var filePath = Path.Combine(_hostingEnvironment.WebRootPath, tool.ImageUrl.TrimStart('/'));
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
+            }
+            
+            // Delete topics for the tool.
+            if (tool.Topics != null)
+            {
+                foreach (var topic in tool.Topics.ToList())
+                {
+                    await _unitOfWork.MqttTopicRepository.DeleteAsync(topic);
+                }
+            }
+            // Delete the tool.
+            await _unitOfWork.MqttToolRepository.DeleteAsync(tool);
+        }
+
+        // Finally, delete the company.
+        await _unitOfWork.CompanyRepository.DeleteAsync(company);
+        await _unitOfWork.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = "Company deleted successfully!";
+        return RedirectToAction("Account", "Home");
+    }
     #endregion
 }
