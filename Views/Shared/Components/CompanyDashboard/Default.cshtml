@@ -1,0 +1,172 @@
+@model Final.Models.ViewComponents.CompanyDashboardViewModel
+@using Final.Entity
+
+<div class="company-dashboard">
+    @if(Model.Companies != null && Model.Companies.Any())
+    {
+        foreach(var company in Model.Companies)
+        {
+            <div class="company-card border rounded p-3 mb-4">
+                <h3>@company.Name</h3>
+                <p><strong>Base Topic:</strong> @company.BaseTopic</p>
+                
+                <!-- Tools Section -->
+                <div class="tools-section mb-3">
+                    <h4>Tools</h4>
+                    @if(company.Tools != null && company.Tools.Any())
+                    {
+                        foreach(var tool in company.Tools)
+                        {
+                            <div class="tool-card border p-2 mb-2">
+                                <h5>@tool.Name</h5>
+                                <p>@tool.Description</p>
+                                @if(!string.IsNullOrEmpty(tool.ImageUrl))
+                                {
+                                    <img src="@tool.ImageUrl" alt="@tool.Name" class="img-fluid" style="max-width: 100px;" />
+                                }
+                                <div class="live-data" id="live-data-@tool.Id">
+                                    <strong>Status:</strong> <span class="tool-status">Loading...</span>
+                                </div>
+                                
+                                <!-- Tool-Level Sending Topics -->
+                                <div class="sending-topics mt-2">
+                                    <h6>Sending Topics (Tool)</h6>
+                                    @{
+                                        var toolTopics = tool.Topics;
+                                    }
+                                    @if(toolTopics.Any())
+                                    {
+                                        foreach(var topic in toolTopics)
+                                        {
+                                            <div class="sending-topic mb-2">
+                                                <p><strong>Topic Template:</strong> @topic.TopicTemplate</p>
+                                                @{
+                                                    bool hasSeq = topic.TopicTemplate.Contains("{seq}");
+                                                }
+                                                @if(hasSeq)
+                                                {
+                                                    for (int i = 1; i <= topic.HowMany; i++)
+                                                    {
+                                                        var finalTopic = topic.TopicTemplate.Replace("{seq}", i.ToString());
+                                                        <button class="btn btn-primary send-mqtt" 
+                                                                data-topic="@finalTopic" 
+                                                                data-tool-id="@tool.Id"
+                                                                data-company-id="@company.Id">
+                                                            Send Data (Seq: @i)
+                                                        </button>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <button class="btn btn-primary send-mqtt" 
+                                                            data-topic="@topic.TopicTemplate" 
+                                                            data-tool-id="@tool.Id"
+                                                            data-company-id="@company.Id">
+                                                        Send Data
+                                                    </button>
+                                                }
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">No sending topics for this tool.</p>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">No tools available for this company.</p>
+                    }
+                </div>
+                
+                <!-- Company-Level Sending Topics -->
+                <div class="company-sending-topics mt-3">
+                    <h4>Company-Level Sending Topics</h4>
+                    @{
+                        var companyTopics = company.CompanyTopics;
+                    }
+                    @if(companyTopics.Any())
+                    {
+                        foreach(var topic in companyTopics)
+                        {
+                            <div class="sending-topic mb-2">
+                                <p><strong>Topic Template:</strong> @topic.TopicTemplate</p>
+                                @{
+                                    bool hasSeq = topic.TopicTemplate.Contains("{seq}");
+                                }
+                                @if(hasSeq)
+                                {
+                                    for (int i = 1; i <= topic.HowMany; i++)
+                                    {
+                                        var finalTopic = topic.TopicTemplate.Replace("{seq}", i.ToString());
+                                        <button class="btn btn-primary send-mqtt" 
+                                                data-topic="@finalTopic" 
+                                                data-company-id="@company.Id">
+                                            Send Data (Seq: @i)
+                                        </button>
+                                    }
+                                }
+                                else
+                                {
+                                    <button class="btn btn-primary send-mqtt" 
+                                            data-topic="@topic.TopicTemplate" 
+                                            data-company-id="@company.Id">
+                                        Send Data
+                                    </button>
+                                }
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">No company-level sending topics available.</p>
+                    }
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <p>No companies available for you.</p>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Handle send button click.
+            $('.send-mqtt').click(function () {
+                var topic = $(this).data('topic');
+                var companyId = $(this).data('company-id');
+                var toolId = $(this).data('tool-id'); // may be undefined for company-level topics
+
+                // For demonstration, use a prompt for payload.
+                var payload = prompt("Enter payload for topic: " + topic, "default payload");
+                if (payload !== null) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/Mqtt/Publish", // Ensure you have an action to handle publishing
+                        data: { topic: topic, payload: payload, companyId: companyId, toolId: toolId },
+                        success: function (response) {
+                            alert("Data sent successfully!");
+                        },
+                        error: function (err) {
+                            alert("Error sending data.");
+                        }
+                    });
+                }
+            });
+
+            // Placeholder: Update live data (this should be replaced with SignalR or other real-time updates).
+            function updateLiveData() {
+                $('.tool-status').each(function () {
+                    $(this).text("Online");
+                });
+            }
+            setInterval(updateLiveData, 5000);
+        });
+    </script>
+}

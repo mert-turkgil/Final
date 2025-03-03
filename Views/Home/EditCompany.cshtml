@@ -138,38 +138,197 @@
                         <label>Change Image or GIF</label>
                         <input type="file" name="Tools[@i].ImageFile" class="form-control" accept="image/*" />
                     </div>
+                    <!-- Editable Tool Topic Templates -->
                     <div class="form-group">
-                        <label>Topic Templates</label>
-                        @if(Model.Tools[i].TopicTemplates != null && Model.Tools[i].TopicTemplates.Any())
-                        {
-                            for (int j = 0; j < Model.Tools[i].TopicTemplates.Count; j++)
+                        <label>Tool Topic Templates</label>
+                        <div class="tool-topic-templates" data-tool-index="@i">
+                            @if(Model.Tools[i].TopicTemplates != null && Model.Tools[i].TopicTemplates.Any())
                             {
-                                <div class="topic-template">
-                                    <strong>Template:</strong> @Model.Tools[i].TopicTemplates[j].Template<br />
-                                    <strong>HowMany:</strong> @Model.Tools[i].TopicTemplates[j].HowMany<br />
-                                    <strong>Purpose:</strong> @Model.Tools[i].TopicTemplates[j].TopicPurpose<br />
-                                    <strong>Data Type:</strong> @Model.Tools[i].TopicTemplates[j].DataType<br />
-                                </div>
+                                for (int j = 0; j < Model.Tools[i].TopicTemplates.Count; j++)
+                                {
+                                    <div class="tool-topic-template animate__animated animate__fadeIn" data-index="@j">
+                                        <div class="form-row">
+                                            <div class="form-group col-md-4">
+                                                <label>Template</label>
+                                                <input type="text" name="Tools[@i].TopicTemplates[@j].Template" 
+                                                       class="form-control template-input" 
+                                                       value="@Model.Tools[i].TopicTemplates[j].Template" 
+                                                       placeholder="e.g. bb/bb{seq}/bb" />
+                                            </div>
+                                            <div class="form-group col-md-2">
+                                                <label>HowMany</label>
+                                                <input type="number" name="Tools[@i].TopicTemplates[@j].HowMany" 
+                                                       class="form-control howmany-input" 
+                                                       value="@Model.Tools[i].TopicTemplates[j].HowMany" 
+                                                       min="1" />
+                                            </div>
+                                            <div class="form-group col-md-2">
+                                                <label>Purpose</label>
+                                                <select name="Tools[@i].TopicTemplates[@j].TopicPurpose" class="form-control">
+                                                    @if(Model.Tools[i].TopicTemplates[j].TopicPurpose == Final.Entity.TopicPurpose.Subscription)
+                                                    {
+                                                        <option value="Subscription" selected="selected">Subscribe</option>
+                                                        <option value="Sending">Send</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="Subscription">Subscribe</option>
+                                                        <option value="Sending" selected="selected">Send</option>
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="form-group col-md-2">
+                                                <label>Data Type</label>
+                                                <select name="Tools[@i].TopicTemplates[@j].DataType" class="form-control">
+                                                    @if(Model.Tools[i].TopicTemplates[j].DataType == Final.Entity.TopicDataType.Int8)
+                                                    {
+                                                        <option value="Int8" selected>Int8</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="Int8">Int8</option>
+                                                    }
+                                                    @if(Model.Tools[i].TopicTemplates[j].DataType == Final.Entity.TopicDataType.Int16)
+                                                    {
+                                                        <option value="Int16" selected>Int16</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="Int16">Int16</option>
+                                                    }
+                                                    @if(Model.Tools[i].TopicTemplates[j].DataType == Final.Entity.TopicDataType.Int32)
+                                                    {
+                                                        <option value="Int32" selected>Int32</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="Int32">Int32</option>
+                                                    }
+                                                    @if(Model.Tools[i].TopicTemplates[j].DataType == Final.Entity.TopicDataType.Int64)
+                                                    {
+                                                        <option value="Int64" selected>Int64</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="Int64">Int64</option>
+                                                    }
+                                                    @if(Model.Tools[i].TopicTemplates[j].DataType == Final.Entity.TopicDataType.UInt8)
+                                                    {
+                                                        <option value="UInt8" selected>UInt8</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="UInt8">UInt8</option>
+                                                    }
+                                                    @if(Model.Tools[i].TopicTemplates[j].DataType == Final.Entity.TopicDataType.UInt16)
+                                                    {
+                                                        <option value="UInt16" selected>UInt16</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="UInt16">UInt16</option>
+                                                    }
+                                                    @if(Model.Tools[i].TopicTemplates[j].DataType == Final.Entity.TopicDataType.UInt32)
+                                                    {
+                                                        <option value="UInt32" selected>UInt32</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="UInt32">UInt32</option>
+                                                    }
+                                                    @if(Model.Tools[i].TopicTemplates[j].DataType == Final.Entity.TopicDataType.UInt64)
+                                                    {
+                                                        <option value="UInt64" selected>UInt64</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="UInt64">UInt64</option>
+                                                    }
+                                                    @if(Model.Tools[i].TopicTemplates[j].DataType == Final.Entity.TopicDataType.Float)
+                                                    {
+                                                        <option value="Float" selected>Float</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="Float">Float</option>
+                                                    }
+                                                    @if(Model.Tools[i].TopicTemplates[j].DataType == Final.Entity.TopicDataType.Double)
+                                                    {
+                                                        <option value="Double" selected>Double</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="Double">Double</option>
+                                                    }
+                                                    @if(Model.Tools[i].TopicTemplates[j].DataType == Final.Entity.TopicDataType.Decimal)
+                                                    {
+                                                        <option value="Decimal" selected>Decimal</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="Decimal">Decimal</option>
+                                                    }
+                                                    @if(Model.Tools[i].TopicTemplates[j].DataType == Final.Entity.TopicDataType.Boolean)
+                                                    {
+                                                        <option value="Boolean" selected>Boolean</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="Boolean">Boolean</option>
+                                                    }
+                                                    @if(Model.Tools[i].TopicTemplates[j].DataType == Final.Entity.TopicDataType.String)
+                                                    {
+                                                        <option value="String" selected>String</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="String">String</option>
+                                                    }
+                                                    @if(Model.Tools[i].TopicTemplates[j].DataType == Final.Entity.TopicDataType.Byte64)
+                                                    {
+                                                        <option value="Byte64" selected>Byte64</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="Byte64">Byte64</option>
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="form-group col-md-2 d-flex align-items-end">
+                                                <button type="button" class="btn btn-danger remove-tool-topic-template">Remove</button>
+                                            </div>
+                                        </div>
+                                        <div class="template-preview alert alert-info">
+                                            <strong>Preview:</strong>
+                                            <span class="preview-content"></span>
+                                        </div>
+                                        <hr />
+                                    </div>
+                                }
                             }
-                        }
+                        </div>
+                        <button type="button" class="btn btn-primary addToolTopicTemplate" data-tool-index="@i">Add Tool Topic Template</button>
                     </div>
                     <button type="button" class="btn btn-danger removeTool">Remove Tool</button>
                     <hr />
                 </div>
             }
         }
-    </div>
-    <button type="button" class="btn btn-primary" id="addTool">Add Tool</button>
+</div>
+<button type="button" class="btn btn-primary" id="addTool">Add Tool</button>
+
     
-    <hr />
-    <button type="submit" class="btn btn-success">Save Changes</button>
-    <a style="float: right;" asp-controller="Home" asp-action="Account" class="btn btn-outline-info mt-4"><i class="fa-solid fa-arrow-left"></i> Return</a>
+<hr />
+<button type="submit" class="btn btn-success">Save Changes</button>
+<a style="float: right;" asp-controller="Home" asp-action="Account" class="btn btn-outline-info mt-4">
+    <i class="fa-solid fa-arrow-left"></i> Return
+</a>
 </form>
 
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        // Helper function to attach input event for preview update
+        // updatePreview: Attach input events to update the preview area when a template or number is changed.
         function updatePreview($container) {
             $container.find('.template-input, .howmany-input').on('input', function() {
                 var $parent = $(this).closest('.company-topic-template, .tool-topic-template');
@@ -187,11 +346,12 @@
         }
 
         $(function(){
-            // Initialize preview for existing templates
+            // Initialize previews for company and tool topic templates.
             updatePreview($('#companyTopicTemplates'));
             updatePreview($('.tool-topic-templates'));
 
-            // Add Company Topic Template
+            // ------------- Company Topic Template Handlers -------------
+            // Add a new Company Topic Template.
             $('#addCompanyTopicTemplate').click(function(){
                 var index = $('#companyTopicTemplates .company-topic-template').length;
                 var newTemplateHtml = `
@@ -246,12 +406,13 @@
                 updatePreview($('#companyTopicTemplates'));
             });
 
-            // Remove Company Topic Template
+            // Remove a Company Topic Template.
             $(document).on('click', '.remove-company-topic-template', function(){
                 $(this).closest('.company-topic-template').remove();
             });
 
-            // Add Tool
+            // ------------- Tool Handlers -------------
+            // Add a new Tool.
             $('#addTool').click(function(){
                 var index = $('#toolsContainer .tool-item').length;
                 var newToolHtml = `
@@ -276,7 +437,9 @@
                         </div>
                         <div class="form-group">
                             <label>Topic Templates</label>
-                            <!-- Optional: you can add dynamic topic template support here -->
+                            <!-- Placeholder for tool topic templates -->
+                            <div class="tool-topic-templates" data-tool-index="${index}"></div>
+                            <button type="button" class="btn btn-primary addToolTopicTemplate" data-tool-index="${index}">Add Tool Topic Template</button>
                         </div>
                         <button type="button" class="btn btn-danger removeTool">Remove Tool</button>
                         <hr />
@@ -285,9 +448,72 @@
                 $('#toolsContainer').append(newToolHtml);
             });
 
-            // Remove Tool button handler.
+            // Remove a Tool.
             $(document).on('click', '.removeTool', function(){
                 $(this).closest('.tool-item').remove();
+            });
+
+            // ------------- Tool Topic Template Handlers -------------
+            // Add a new Tool Topic Template.
+            $(document).on('click', '.addToolTopicTemplate', function(){
+                var toolIndex = $(this).attr('data-tool-index');
+                var container = $(`.tool-topic-templates[data-tool-index='${toolIndex}']`);
+                var index = container.children('.tool-topic-template').length;
+                var newTemplateHtml = `
+                    <div class="tool-topic-template animate__animated animate__fadeIn" data-index="${index}">
+                        <div class="form-row">
+                            <div class="form-group col-md-4">
+                                <label>Template</label>
+                                <input type="text" name="Tools[${toolIndex}].TopicTemplates[${index}].Template" class="form-control template-input" placeholder="e.g. bb/bb{seq}/bb" />
+                            </div>
+                            <div class="form-group col-md-2">
+                                <label>HowMany</label>
+                                <input type="number" name="Tools[${toolIndex}].TopicTemplates[${index}].HowMany" class="form-control howmany-input" value="1" min="1" />
+                            </div>
+                            <div class="form-group col-md-2">
+                                <label>Purpose</label>
+                                <select name="Tools[${toolIndex}].TopicTemplates[${index}].TopicPurpose" class="form-control">
+                                    <option value="Subscription">Subscribe</option>
+                                    <option value="Sending">Send</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-2">
+                                <label>Data Type</label>
+                                <select name="Tools[${toolIndex}].TopicTemplates[${index}].DataType" class="form-control">
+                                    <option value="Int8">Int8</option>
+                                    <option value="Int16">Int16</option>
+                                    <option value="Int32">Int32</option>
+                                    <option value="Int64">Int64</option>
+                                    <option value="UInt8">UInt8</option>
+                                    <option value="UInt16">UInt16</option>
+                                    <option value="UInt32">UInt32</option>
+                                    <option value="UInt64">UInt64</option>
+                                    <option value="Float">Float</option>
+                                    <option value="Double">Double</option>
+                                    <option value="Decimal">Decimal</option>
+                                    <option value="Boolean">Boolean</option>
+                                    <option value="String">String</option>
+                                    <option value="Byte64">Byte64</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-2 d-flex align-items-end">
+                                <button type="button" class="btn btn-danger remove-tool-topic-template">Remove</button>
+                            </div>
+                        </div>
+                        <div class="template-preview alert alert-info">
+                            <strong>Preview:</strong>
+                            <span class="preview-content"></span>
+                        </div>
+                        <hr />
+                    </div>
+                `;
+                container.append(newTemplateHtml);
+                updatePreview(container);
+            });
+
+            // Remove a Tool Topic Template.
+            $(document).on('click', '.remove-tool-topic-template', function(){
+                $(this).closest('.tool-topic-template').remove();
             });
         });
     </script>

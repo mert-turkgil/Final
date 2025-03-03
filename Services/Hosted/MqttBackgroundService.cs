@@ -48,34 +48,39 @@ namespace Final.Services.Hosted
                 var companies = (await unitOfWork.CompanyRepository.GetAllAsync()).ToList();
 
                 foreach (var company in companies)
-                {
-                    _logger.LogInformation($"Subscribing for company: {company.Name}");
-
-                    // 1. Subscribe to company-level topics (where MqttToolId == null),
-                    //    but only those with TopicPurpose == Subscription.
-                    var companyTopics = await unitOfWork.MqttTopicRepository.GetByCompanyIdAndNoToolAsync(company.Id);
-                    foreach (var topic in companyTopics.Where(t => t.TopicPurpose == TopicPurpose.Subscription))
-                    {
-                        string topicToSubscribe = topic.TopicTemplate;
-                        string logMessage = $"Subscribing to company topic: {topicToSubscribe}";
-                        _mqttLogService.AddLog(company.Id, company.Name, logMessage);
-                        _logger.LogInformation(logMessage);
-                        await _mqttService.SubscribeAsync(topicToSubscribe);
-                    }
-
-                    // 2. Subscribe to each tool's topics, but only if they are for Subscription.
-                    foreach (var tool in company.Tools)
-                    {
-                        foreach (var topic in tool.Topics.Where(t => t.TopicPurpose == TopicPurpose.Subscription))
                         {
-                            string topicToSubscribe = topic.TopicTemplate;
-                            string logMessage = $"Subscribing to tool topic: {topicToSubscribe}";
-                            _mqttLogService.AddLog(company.Id, company.Name, logMessage);
-                            _logger.LogInformation(logMessage);
-                            await _mqttService.SubscribeAsync(topicToSubscribe);
-                        }
-                    }
-                }
+                            // 1) Gather all subscription topics for this company:
+                            //    a) Company-level topics
+                            var companyTopics = await unitOfWork.MqttTopicRepository
+                                .GetByCompanyIdAndNoToolAsync(company.Id);
+
+                            //    b) Tool-level topics
+                            var toolTopics = company.Tools
+                                .SelectMany(tool => tool.Topics)
+                                .Where(t => t.TopicPurpose == TopicPurpose.Subscription)
+                                .ToList();
+
+                            // Combine them
+                            var allTopics = companyTopics
+                                .Where(t => t.TopicPurpose == TopicPurpose.Subscription)
+                                .Concat(toolTopics)
+                                .ToList();
+
+                            // 2) Sort by room number
+                            var sortedTopics = allTopics
+                                .OrderBy(t => ExtractRoomNumber(t.TopicTemplate))
+                                .ThenBy(t => t.TopicTemplate) // (Optional secondary sort)
+                                .ToList();
+
+                            // 3) Subscribe in ascending order
+                            foreach (var topic in sortedTopics)
+                            {
+                                string topicToSubscribe = topic.TopicTemplate;
+                                string logMessage = $"Subscribing -> : {topicToSubscribe}";
+                                _mqttLogService.AddLog(company.Id, company.Name, logMessage);
+                                await _mqttService.SubscribeAsync(topicToSubscribe);
+                            }
+                         }
             }
         }
 
@@ -83,28 +88,96 @@ namespace Final.Services.Hosted
         {
             _logger.LogInformation($"MQTT - Topic: {e.Topic}, Payload: {e.Payload}");
 
-            // Create a scope to resolve IShopUnitOfWork and log the incoming message.
+            // Create a scope to resolve IShopUnitOfWork.
             using (var scope = _serviceProvider.CreateScope())
             {
                 var unitOfWork = scope.ServiceProvider.GetRequiredService<IShopUnitOfWork>();
                 var companies = await unitOfWork.CompanyRepository.GetAllAsync();
 
-                // Find which company this topic might belong to by matching BaseTopic.
-                var company = companies.FirstOrDefault(c => 
-                    e.Topic.Contains(c.BaseTopic, StringComparison.OrdinalIgnoreCase));
+                // Loop through each company.
+                foreach (var company in companies)
+                {
+                    // If the incoming topic contains the company's BaseTopic, assume it's for that company.
+                    if (e.Topic.Contains(company.BaseTopic, StringComparison.OrdinalIgnoreCase))
+                    {
+                        // If the topic appears to be related to a room (contains "room")
+                        if (e.Topic.Contains("room", StringComparison.OrdinalIgnoreCase))
+                        {
+                            // Extract the room number (implement your own extraction logic)
+                            int roomNumber = ExtractRoomNumber(e.Topic);
+                            
+                            // Retrieve or create a generic card for this room.
+                            var card = LiveDataStore.LiveRoomData.GetOrAdd(roomNumber, new Final.Models.LiveData.GenericCardModel
+                            {
+                                Id = roomNumber,
+                                CardName = $"Room {roomNumber}",
+                                Description = "Live room data",
+                                LastUpdated = DateTime.UtcNow
+                            });
+                            
+                            // Update a metric for the room; for example, store the payload under "Value".
+                            card.Metrics["Value"] = e.Payload;
+                            card.LastUpdated = DateTime.UtcNow;
+                        }
+                        else
+                        {
+                            // Otherwise, assume it's a tool message.
+                            // Look through the company's tools to see if the topic matches a tool's base topic.
+                            foreach (var tool in company.Tools)
+                            {
+                                if (e.Topic.Contains(tool.ToolBaseTopic, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    // Use a unique key for the tool (for example, the hash of its GUID).
+                                    int toolKey = tool.Id.GetHashCode();
+                                    
+                                    // Retrieve or create a generic tool model.
+                                    var genericTool = LiveDataStore.ToolData.GetOrAdd(toolKey, new Final.Models.LiveData.GenericToolModel
+                                    {
+                                        Id = toolKey,
+                                        ToolId = tool.Id,
+                                        Name = tool.Name,
+                                        ToolBaseTopic = tool.ToolBaseTopic,
+                                        Description = tool.Description,
+                                        ImageUrl = tool.ImageUrl,
+                                        CompanyId = company.Id,
+                                    });
+                                    
+                                    // Update live values for the tool (for example, "Status").
+                                    genericTool.LiveValues["Status"] = e.Payload;
+                                }
+                            }
+                        }
 
-                if (company != null)
-                {
-                    string message = $"Received: {e.Topic} -> {e.Payload}";
-                    _mqttLogService.AddLog(company.Id, company.Name, message);
-                    _logger.LogInformation(message);
-                }
-                else
-                {
-                    _logger.LogWarning("Received message for unknown company.");
+                        // Log the message for the matching company.
+                        string logMessage = $"Received: {e.Topic} -> {e.Payload}";
+                        _mqttLogService.AddLog(company.Id, company.Name, logMessage);
+                        _logger.LogInformation(logMessage);
+                    }
                 }
             }
         }
+
+        // Example helper: implement your own room number extraction logic based on topic naming.
+        private int ExtractRoomNumber(string topic)
+        {
+            // For instance, if the topic contains "room" followed by a number, extract it.
+            // This is a simple placeholder implementation.
+            var parts = topic.Split(new char[] { '/', '_' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var part in parts)
+            {
+                if (part.StartsWith("room", StringComparison.OrdinalIgnoreCase))
+                {
+                    string numberPart = part.Substring(4); // Remove "room"
+                    if (int.TryParse(numberPart, out int roomNumber))
+                    {
+                        return roomNumber;
+                    }
+                }
+            }
+            // Default if extraction fails.
+            return 0;
+        }
+
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {

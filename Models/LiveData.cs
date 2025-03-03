@@ -113,30 +113,11 @@ namespace Final.Models.LiveData
     /// </summary>
     public class GenericCardModel
     {
-        /// <summary>
-        /// The numeric identifier used as the dictionary key.
-        /// </summary>
         public int Id { get; set; }
-
-        /// <summary>
-        /// A display name or title for the card.
-        /// </summary>
         public string CardName { get; set; }
-
-        /// <summary>
-        /// A description or additional information for display.
-        /// </summary>
         public string Description { get; set; }
-
-        /// <summary>
-        /// A collection of metrics or key-value pairs representing live data.
-        /// For instance, you might include status flags, readings, or aggregated values.
-        /// </summary>
+        public string ImageUrl { get; set; } // Optional: Direct image/GIF URL
         public Dictionary<string, object> Metrics { get; set; } = new Dictionary<string, object>();
-
-        /// <summary>
-        /// The timestamp of the last update to this card's data.
-        /// </summary>
         public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
     }
 }

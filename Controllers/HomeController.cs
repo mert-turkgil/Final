@@ -132,28 +132,43 @@ public class HomeController : Controller
             // IMPORTANT: Call GetAllWithToolsAndTopicsAsync() (not GetAllTopicsAsync)
             var companies = await _companyRepository.GetAllWithToolsAndTopicsAsync(); 
 
-            // Map companies into CompanyDto.
             var companyDtos = companies.Select(c => new CompanyDto
             {
                 Id = c.Id,
                 Name = c.Name,
                 BaseTopic = c.BaseTopic,
+                // Optionally, if you want to support company-level topics:
+               CompanyTopics = c.Topics?.Select(topic => new TopicDto
+                {
+                    Id = topic.Id,
+                    BaseTopic = topic.BaseTopic,
+                    TopicTemplate = topic.TopicTemplate,
+                    HowMany = topic.HowMany,
+                    DataType = topic.DataType.ToString(),
+                    purpose = topic.TopicPurpose
+                }).ToList() ?? new List<TopicDto>(),
+
                 Tools = c.Tools.Select(t => new ToolDto
                 {
                     Id = t.Id,
                     Name = t.Name,
                     Description = t.Description,
+                    // Map topics including their purpose.
                     Topics = t.Topics.Select(topic => new TopicDto
                     {
                         Id = topic.Id,
                         BaseTopic = topic.BaseTopic,
                         TopicTemplate = topic.TopicTemplate,
                         HowMany = topic.HowMany,
-                        DataType = topic.DataType.ToString()
-                    }).ToList()
+                        DataType = topic.DataType.ToString(),
+                        purpose = topic.TopicPurpose
+                    }).ToList(),
+                    // Optionally, if you want to show a tool’s overall purpose:
+                    purpose = t.Topics.FirstOrDefault()?.TopicPurpose ?? TopicPurpose.Subscription
                 }).ToList(),
                 RoleIds = c.CompanyRoles.Select(cr => cr.RoleId).ToList()
             }).ToList();
+
 
 
             // Retrieve all available roles.
@@ -886,220 +901,220 @@ public class HomeController : Controller
         return RedirectToAction("Account");
     }
 
-    #region helpermethod
-    private async Task GenerateTopicsAsync(
-        string baseTopic,
-        string template,
-        int count,
-        TopicDataType dataType,
-        TopicPurpose topicPurpose,
-        Guid? companyId = null,
-        Guid? mqttToolId = null,
-        MqttTool? tool = null)
+#region Helper Method
+// This helper generates topics from a given template by replacing the "{seq}" placeholder
+// with a sequence number (from 1 to count). It is used for both company-level and tool-specific topics.
+private async Task GenerateTopicsAsync(
+    string baseTopic,
+    string template,
+    int count,
+    TopicDataType dataType,
+    TopicPurpose topicPurpose,
+    Guid? companyId = null,
+    Guid? mqttToolId = null,
+    MqttTool? tool = null)
+{
+    for (int i = 1; i <= count; i++)
     {
-        for (int i = 1; i <= count; i++)
+        // Replace the "{seq}" placeholder with the sequence number.
+        var finalTemplate = template.Replace("{seq}", i.ToString());
+        var topic = new MqttTopic
         {
-            // Replace the "{seq}" placeholder with the sequence number.
-            var finalTemplate = template.Replace("{seq}", i.ToString());
-            var topic = new MqttTopic
-            {
-                Id = Guid.NewGuid(),
-                BaseTopic = baseTopic,
-                TopicTemplate = finalTemplate,
-                HowMany = 1, // Each generated topic represents a single entry.
-                DataType = dataType,
-                TopicPurpose = topicPurpose,
-                MqttToolId = mqttToolId,
-                CompanyId = companyId ?? throw new ArgumentNullException(nameof(companyId))
-            };
-
-            if (tool != null)
-            {
-                topic.MqttTool = tool;
-                tool.Topics.Add(topic);
-            }
-            await _unitOfWork.MqttTopicRepository.AddAsync(topic);
-        }
-    }
-    #endregion
-
-
-    #region EditCompany
-    [HttpGet]
-    [Authorize(Roles = "Admin,Root")]
-    public async Task<IActionResult> EditCompany(Guid id)
-    {
-        // Load the company with its tools and their topics.
-        var company = await _unitOfWork.CompanyRepository.GetByIdWithToolsAsync(id);
-        if (company == null)
-        {
-            return NotFound();
-        }
-
-        // Retrieve company-level topics (those with no tool assigned)
-        var companyTopics = await _unitOfWork.MqttTopicRepository.GetByCompanyIdAndNoToolAsync(company.Id);
-
-        // Map the company to the edit view model.
-        var model = new CompanyEditViewModel
-        {
-            Id = company.Id,
-            Name = company.Name,
-            BaseTopic = company.BaseTopic,
-            CompanyTopicTemplates = companyTopics.Select(topic => new EditCompanyTopicTemplateViewModel
-            {
-                Template = topic.TopicTemplate,
-                HowMany = topic.HowMany,
-                DataType = topic.DataType,
-                TopicPurpose = topic.TopicPurpose
-            }).ToList(),
-            Tools = company.Tools.Select(t => new ToolEditViewModel
-            {
-                Id = t.Id,
-                ToolName = t.Name,
-                ToolBaseTopic = t.ToolBaseTopic,
-                Description = t.Description,
-                ImageUrl = t.ImageUrl,
-                TopicTemplates = t.Topics.Select(tt => new EditToolTopicTemplateViewModel
-                {
-                    Template = tt.TopicTemplate,
-                    HowMany = tt.HowMany,
-                    DataType = tt.DataType,
-                    TopicPurpose = tt.TopicPurpose
-                }).ToList()
-            }).ToList()
+            Id = Guid.NewGuid(),
+            BaseTopic = baseTopic,
+            TopicTemplate = finalTemplate,
+            HowMany = 1, // Each generated topic represents a single entry.
+            DataType = dataType,
+            TopicPurpose = topicPurpose,
+            MqttToolId = mqttToolId,
+            CompanyId = companyId ?? throw new ArgumentNullException(nameof(companyId))
         };
 
+        if (tool != null)
+        {
+            topic.MqttTool = tool;
+            tool.Topics.Add(topic);
+        }
+        await _unitOfWork.MqttTopicRepository.AddAsync(topic);
+    }
+}
+#endregion
+
+#region EditCompany
+
+// GET: Render the edit view for a company.
+[HttpGet]
+[Authorize(Roles = "Admin,Root")]
+public async Task<IActionResult> EditCompany(Guid id)
+{
+    // Load the company with its tools and their topics.
+    var company = await _unitOfWork.CompanyRepository.GetByIdWithToolsAsync(id);
+    if (company == null)
+    {
+        return NotFound();
+    }
+
+    // Retrieve company-level topics (topics with no tool assigned).
+    var companyTopics = await _unitOfWork.MqttTopicRepository.GetByCompanyIdAndNoToolAsync(company.Id);
+
+    // Map the company to the edit view model.
+    var model = new CompanyEditViewModel
+    {
+        Id = company.Id,
+        Name = company.Name,
+        BaseTopic = company.BaseTopic,
+        CompanyTopicTemplates = companyTopics.Select(topic => new EditCompanyTopicTemplateViewModel
+        {
+            Template = topic.TopicTemplate,
+            HowMany = topic.HowMany,
+            DataType = topic.DataType,
+            TopicPurpose = topic.TopicPurpose
+        }).ToList(),
+        Tools = company.Tools.Select(t => new ToolEditViewModel
+        {
+            Id = t.Id,
+            ToolName = t.Name,
+            ToolBaseTopic = t.ToolBaseTopic,
+            Description = t.Description,
+            ImageUrl = t.ImageUrl,
+            TopicTemplates = t.Topics.Select(tt => new EditToolTopicTemplateViewModel
+            {
+                Template = tt.TopicTemplate,
+                HowMany = tt.HowMany,
+                DataType = tt.DataType,
+                TopicPurpose = tt.TopicPurpose
+            }).ToList()
+        }).ToList()
+    };
+
+    return View(model);
+}
+
+// POST: Update an existing company along with its tools and topics.
+[HttpPost]
+[Authorize(Roles = "Admin,Root")]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> EditCompany(CompanyEditViewModel model)
+{
+    if (!ModelState.IsValid)
+    {
         return View(model);
     }
 
-    [HttpPost]
-    [Authorize(Roles = "Admin,Root")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> EditCompany(CompanyEditViewModel model)
+    // Load the existing company (with its tools).
+    var company = await _unitOfWork.CompanyRepository.GetByIdWithToolsAsync(model.Id);
+    if (company == null)
     {
-        if (!ModelState.IsValid)
-        {
-            return View(model);
-        }
-
-        // Load existing company (including its tools).
-        var company = await _unitOfWork.CompanyRepository.GetByIdWithToolsAsync(model.Id);
-        if (company == null)
-        {
-            return NotFound();
-        }
-
-        // Update basic company fields.
-        company.Name = model.Name;
-        company.BaseTopic = model.BaseTopic;
-
-        // --- Update Company-Level Topics ---
-        // Delete existing company-level topics.
-        var existingCompanyTopics = await _unitOfWork.MqttTopicRepository.GetByCompanyIdAndNoToolAsync(company.Id);
-        foreach (var topic in existingCompanyTopics)
-        {
-            await _unitOfWork.MqttTopicRepository.DeleteAsync(topic);
-        }
-        // Recreate topics from the view model.
-        if (model.CompanyTopicTemplates != null)
-        {
-            foreach (var ct in model.CompanyTopicTemplates)
-            {
-                await GenerateTopicsAsync(
-                    company.BaseTopic,
-                    ct.Template,
-                    ct.HowMany,
-                    ct.DataType,
-                    ct.TopicPurpose,
-                    mqttToolId: null,
-                    companyId: company.Id);
-            }
-        }
-
-        // --- Update Tools and Their Topics ---
-        // For simplicity, remove all existing tools (and their topics) and rebuild from the view model.
-        foreach (var tool in company.Tools.ToList())
-        {
-            if (tool.Topics != null)
-            {
-                foreach (var topic in tool.Topics.ToList())
-                {
-                    await _unitOfWork.MqttTopicRepository.DeleteAsync(topic);
-                }
-            }
-            await _unitOfWork.MqttToolRepository.DeleteAsync(tool);
-        }
-        company.Tools.Clear();
-
-        if (model.Tools != null)
-        {
-            foreach (var toolModel in model.Tools)
-            {
-                var tool = new MqttTool
-                {
-                    // Reuse the existing Id if available; otherwise, assign a new one.
-                    Id = toolModel.Id != Guid.Empty ? toolModel.Id : Guid.NewGuid(),
-                    Name = toolModel.ToolName,
-                    ToolBaseTopic = toolModel.ToolBaseTopic,
-                    Description = toolModel.Description,
-                    CompanyId = company.Id
-                };
-
-                // Process uploaded image file if provided.
-                if (toolModel.ImageFile != null && toolModel.ImageFile.Length > 0)
-                {
-                    var fileName = Path.GetFileName(toolModel.ImageFile.FileName);
-                    var uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "uploads");
-                    if (!Directory.Exists(uploadsFolder))
-                    {
-                        Directory.CreateDirectory(uploadsFolder);
-                    }
-                    var filePath = Path.Combine(uploadsFolder, fileName);
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await toolModel.ImageFile.CopyToAsync(stream);
-                    }
-                    tool.ImageUrl = "/uploads/" + fileName;
-                }
-                else
-                {
-                    // If no new file is uploaded, keep the existing image URL.
-                    tool.ImageUrl = toolModel.ImageUrl;
-                }
-
-                // Process topic templates for the tool.
-                if (toolModel.TopicTemplates != null)
-                {
-                    foreach (var tt in toolModel.TopicTemplates)
-                    {
-                        await GenerateTopicsAsync(
-                            company.BaseTopic,
-                            tt.Template,
-                            tt.HowMany,
-                            tt.DataType,
-                            tt.TopicPurpose,
-                            mqttToolId: tool.Id,
-                            companyId: company.Id,
-                            tool: tool);
-                    }
-                }
-                company.Tools.Add(tool);
-                await _unitOfWork.MqttToolRepository.AddAsync(tool);
-            }
-        }
-
-        await _unitOfWork.CompanyRepository.UpdateAsync(company);
-        await _unitOfWork.SaveChangesAsync();
-
-        TempData["SuccessMessage"] = "Company updated successfully!";
-        return RedirectToAction("Account", "Home");
+        return NotFound();
     }
 
+    // Update basic company fields.
+    company.Name = model.Name;
+    company.BaseTopic = model.BaseTopic;
 
+    // --- Update Company-Level Topics ---
+    // Delete existing company-level topics.
+    var existingCompanyTopics = await _unitOfWork.MqttTopicRepository.GetByCompanyIdAndNoToolAsync(company.Id);
+    foreach (var topic in existingCompanyTopics)
+    {
+        await _unitOfWork.MqttTopicRepository.DeleteAsync(topic);
+    }
+    // Recreate company-level topics from the view model.
+    if (model.CompanyTopicTemplates != null)
+    {
+        foreach (var ct in model.CompanyTopicTemplates)
+        {
+            await GenerateTopicsAsync(
+                company.BaseTopic,
+                ct.Template,
+                ct.HowMany,
+                ct.DataType,
+                ct.TopicPurpose,
+                mqttToolId: null,
+                companyId: company.Id);
+        }
+    }
 
+    // --- Update Tools and Their Topics ---
+    // For simplicity, remove all existing tools (and their topics) and rebuild from the view model.
+    foreach (var tool in company.Tools.ToList())
+    {
+        if (tool.Topics != null)
+        {
+            foreach (var topic in tool.Topics.ToList())
+            {
+                await _unitOfWork.MqttTopicRepository.DeleteAsync(topic);
+            }
+        }
+        await _unitOfWork.MqttToolRepository.DeleteAsync(tool);
+    }
+    company.Tools.Clear();
 
+    if (model.Tools != null)
+    {
+        foreach (var toolModel in model.Tools)
+        {
+            var tool = new MqttTool
+            {
+                // Reuse the existing Id if available; otherwise, assign a new one.
+                Id = toolModel.Id != Guid.Empty ? toolModel.Id : Guid.NewGuid(),
+                Name = toolModel.ToolName,
+                ToolBaseTopic = toolModel.ToolBaseTopic,
+                Description = toolModel.Description,
+                CompanyId = company.Id
+            };
 
-    #endregion
+            // Process uploaded image file if provided.
+            if (toolModel.ImageFile != null && toolModel.ImageFile.Length > 0)
+            {
+                var fileName = Path.GetFileName(toolModel.ImageFile.FileName);
+                var uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "uploads");
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+                var filePath = Path.Combine(uploadsFolder, fileName);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await toolModel.ImageFile.CopyToAsync(stream);
+                }
+                tool.ImageUrl = "/uploads/" + fileName;
+            }
+            else
+            {
+                // Preserve the existing image URL if no new file is uploaded.
+                tool.ImageUrl = toolModel.ImageUrl;
+            }
+
+            // Process topic templates for the tool.
+            if (toolModel.TopicTemplates != null)
+            {
+                foreach (var tt in toolModel.TopicTemplates)
+                {
+                    await GenerateTopicsAsync(
+                        company.BaseTopic,
+                        tt.Template,
+                        tt.HowMany,
+                        tt.DataType,
+                        tt.TopicPurpose,
+                        mqttToolId: tool.Id,
+                        companyId: company.Id,
+                        tool: tool);
+                }
+            }
+            company.Tools.Add(tool);
+            await _unitOfWork.MqttToolRepository.AddAsync(tool);
+        }
+    }
+
+    await _unitOfWork.CompanyRepository.UpdateAsync(company);
+    await _unitOfWork.SaveChangesAsync();
+
+    TempData["SuccessMessage"] = "Company updated successfully!";
+    return RedirectToAction("Account", "Home");
+}
+#endregion
+ 
     [HttpPost]
     [Authorize(Roles = "Admin,Root")]
     [ValidateAntiForgeryToken]

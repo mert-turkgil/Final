@@ -1,0 +1,35 @@
+@model IEnumerable<Final.Models.LiveData.GenericToolModel>
+
+<div class="row">
+    @foreach (var tool in Model)
+    {
+        <div class="col-md-4 col-sm-6 mb-4">
+            <div class="card h-100">
+                @* If an ImageUrl is provided, display it (e.g. a GIF for the tool) *@
+                @if (!string.IsNullOrEmpty(tool.ImageUrl))
+                {
+                    <img src="@tool.ImageUrl" class="card-img-top" alt="@tool.Name" style="max-height:200px; object-fit:cover;">
+                }
+                <div class="card-body">
+                    <h5 class="card-title">@tool.Name</h5>
+                    <p class="card-text">@tool.Description</p>
+                    <p class="card-text">
+                        <small class="text-muted">Base Topic: @tool.ToolBaseTopic</small>
+                    </p>
+                    @if (tool.LiveValues != null && tool.LiveValues.Any())
+                    {
+                        <ul class="list-unstyled">
+                            @foreach(var item in tool.LiveValues)
+                            {
+                                <li><strong>@item.Key:</strong> @item.Value</li>
+                            }
+                        </ul>
+                    }
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">Tool ID: @tool.ToolId</small>
+                </div>
+            </div>
+        </div>
+    }
+</div>

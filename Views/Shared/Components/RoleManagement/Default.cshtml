@@ -26,13 +26,12 @@
                             <td>@role.Name</td>
                             <td>@role.Id</td>
                             <td>
+                            <a asp-controller="Home" asp-action="RoleEdit" asp-route-id="@role.Id" class="btn btn-warning btn-sm">Edit</a>
                             <form asp-controller="Home" asp-action="RoleDelete" method="post" class="d-inline">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="id" value="@role.Id" />
                                 <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                             </form>
-
-                            <a asp-controller="Home" asp-action="RoleEdit" asp-route-id="@role.Id" class="btn btn-warning btn-sm">Edit</a>
                             </td>
                         </tr>
                     }

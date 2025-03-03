@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Final.Entity;
 using Final.Identity;
 using Microsoft.AspNetCore.Identity;
@@ -16,6 +15,8 @@ namespace Final.Data.Configuration
             // 1) Define static GUIDs to ensure relationships line up
             // --------------------------------
             var companyId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+            // We'll seed two tools: "Control Room" and "Compressor"
+            // If you intend room topics to be company-level, they will not be associated with any tool.
             var controlRoomToolId = Guid.Parse("22222222-2222-2222-2222-222222222222");
             var compressorToolId = Guid.Parse("33333333-3333-3333-3333-333333333333");
 
@@ -32,16 +33,12 @@ namespace Final.Data.Configuration
             );
 
             // --------------------------------
-            // 3) Seed Tools (Control Room, Compressor, etc.)
+            // 3) Seed Tools
             // --------------------------------
+            // Here, "Compressor" is considered a tool.
+            // "Control Room" is also seeded but its topics will not be tied to it,
+            // making them company-level.
             modelBuilder.Entity<MqttTool>().HasData(
-                new MqttTool
-                {
-                    Id = controlRoomToolId,
-                    CompanyId = companyId,
-                    Name = "Control Room",
-                    Description = "Main control room for the company"
-                },
                 new MqttTool
                 {
                     Id = compressorToolId,
@@ -52,14 +49,15 @@ namespace Final.Data.Configuration
             );
 
             // --------------------------------
-            // 4) Seed Static Topics
+            // 4) Seed Static Topic for the Compressor Tool
             // --------------------------------
+            // This topic is associated with the Compressor tool.
             var topicCompressorId = Guid.Parse("66666666-6666-6666-6666-666666666666");
             modelBuilder.Entity<MqttTopic>().HasData(
                 new MqttTopic
                 {
                     Id = topicCompressorId,
-                    MqttToolId = compressorToolId,
+                    MqttToolId = compressorToolId, // tool-level
                     CompanyId = companyId,
                     BaseTopic = "ciceklisogukhavadeposu",
                     TopicTemplate = "ciceklisogukhavadeposu/control_room/compressor/status",
@@ -70,8 +68,9 @@ namespace Final.Data.Configuration
             );
 
             // --------------------------------
-            // 5a) Seed Room Status Data (pwr_rqst topics) with unique prefix "AAAAAAA0"
+            // 5a) Seed Room Status Data (pwr_rqst topics)
             // --------------------------------
+            // These topics are now company-level (MqttToolId = null)
             var roomStatusData = new List<MqttTopic>();
             for (int room = 1; room <= 12; room++)
             {
@@ -80,7 +79,7 @@ namespace Final.Data.Configuration
                 roomStatusData.Add(new MqttTopic
                 {
                     Id = topicId,
-                    MqttToolId = controlRoomToolId,
+                    MqttToolId = null, // Company-level topic
                     CompanyId = companyId,
                     BaseTopic = "ciceklisogukhavadeposu",
                     TopicTemplate = $"pwr_rqst/room{room}/control_room/ciceklisogukhavadeposu",
@@ -92,7 +91,7 @@ namespace Final.Data.Configuration
             modelBuilder.Entity<MqttTopic>().HasData(roomStatusData.ToArray());
 
             // --------------------------------
-            // 5b) Seed 12 set_temp/room Topics with unique prefix "BBBBBBBB"
+            // 5b) Seed 12 set_temp/room Topics
             // --------------------------------
             var roomSendData = new List<MqttTopic>();
             for (int room = 1; room <= 12; room++)
@@ -102,7 +101,7 @@ namespace Final.Data.Configuration
                 roomSendData.Add(new MqttTopic
                 {
                     Id = topicId,
-                    MqttToolId = controlRoomToolId,
+                    MqttToolId = null, // Company-level
                     CompanyId = companyId,
                     BaseTopic = "ciceklisogukhavadeposu",
                     TopicTemplate = $"set_temp/room{room}/control_room/ciceklisogukhavadeposu",
@@ -114,7 +113,7 @@ namespace Final.Data.Configuration
             modelBuilder.Entity<MqttTopic>().HasData(roomSendData.ToArray());
 
             // --------------------------------
-            // 5c) Seed 12 Room Status Topics with unique prefix "CCCCCCCC"
+            // 5c) Seed 12 Room Status Topics
             // --------------------------------
             var roomStatusTopics = new List<MqttTopic>();
             for (int room = 1; room <= 12; room++)
@@ -124,7 +123,7 @@ namespace Final.Data.Configuration
                 roomStatusTopics.Add(new MqttTopic
                 {
                     Id = topicId,
-                    MqttToolId = controlRoomToolId,
+                    MqttToolId = null, // Company-level
                     CompanyId = companyId,
                     BaseTopic = "ciceklisogukhavadeposu",
                     TopicTemplate = $"ciceklisogukhavadeposu/control_room/room{room}/status",
@@ -136,7 +135,7 @@ namespace Final.Data.Configuration
             modelBuilder.Entity<MqttTopic>().HasData(roomStatusTopics.ToArray());
 
             // --------------------------------
-            // 5d) Seed 12 Room Temp Topics with prefix "00000000"
+            // 5d) Seed 12 Room Temp Topics
             // --------------------------------
             var roomTempTopics = new List<MqttTopic>();
             for (int room = 1; room <= 12; room++)
@@ -146,7 +145,7 @@ namespace Final.Data.Configuration
                 roomTempTopics.Add(new MqttTopic
                 {
                     Id = topicId,
-                    MqttToolId = controlRoomToolId,
+                    MqttToolId = null, // Company-level
                     CompanyId = companyId,
                     BaseTopic = "ciceklisogukhavadeposu",
                     TopicTemplate = $"ciceklisogukhavadeposu/control_room/room{room}/temp",
@@ -161,8 +160,8 @@ namespace Final.Data.Configuration
             // 6) Seed Role for the Company and Bind It
             // --------------------------------
             var roleId = "role-ciceklisogukhavadeposu";
-            // The role itself should be seeded in ApplicationDbContext or via RoleManager.
-            // Here we seed only the CompanyRole record that references the role.
+            // The actual role record should be created in ApplicationDbContext or via RoleManager.
+            // Here, we only seed the CompanyRole record that references that role.
             modelBuilder.Entity<CompanyRole>().HasData(
                 new CompanyRole
                 {

@@ -1,0 +1,24 @@
+@model IEnumerable<Final.Models.LiveData.GenericTopicModel>
+
+<div class="row">
+    @foreach (var topic in Model)
+    {
+        <div class="col-md-3 col-sm-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h6 class="card-title">@topic.TopicTemplate</h6>
+                    <p class="card-text">
+                        <strong>Base Topic:</strong> @topic.BaseTopic <br />
+                        <strong>Data Type:</strong> @topic.DataType <br />
+                        <strong>Purpose:</strong> @topic.TopicPurpose <br />
+                        <strong>Instances:</strong> @topic.HowMany <br />
+                        <strong>Current Value:</strong> @topic.CurrentValue
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">Topic ID: @topic.TopicId</small>
+                </div>
+            </div>
+        </div>
+    }
+</div>
